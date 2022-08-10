@@ -108,6 +108,13 @@ static MSDKDns * _sharedInstance = nil;
 
 - (void) WGSetEnableKeepDomainsAlive: (BOOL)enableKeepDomainsAlive {
     [[MSDKDnsParamsManager shareInstance] msdkDnsSetEnableKeepDomainsAlive:enableKeepDomainsAlive];
+
+}
+
+- (void) WGSetIPRankData:(NSDictionary *)IPRankData {
+    if (IPRankData) {
+        [[MSDKDnsParamsManager shareInstance] msdkDnsSetIPRankData:IPRankData];
+    }
 }
 
 - (void) WGSetHijackDomainArray:(NSArray *)hijackDomainArray {
