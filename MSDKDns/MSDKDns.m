@@ -23,6 +23,7 @@
 
 static MSDKDns * gSharedInstance = nil;
 static dispatch_once_t onceToken;
+static BOOL isInitialized = NO;
 
 #pragma mark - init
 + (instancetype) sharedInstance {
@@ -42,6 +43,7 @@ static dispatch_once_t onceToken;
 }
 
 - (BOOL) initConfig:(DnsConfig *)config {
+    isInitialized = YES;
 #if IS_INTL
     if (config->encryptType == HttpDnsEncryptTypeHTTPS) {
         //国际站SDK不能进行HTTPS解析，直接报错提示用户
@@ -176,6 +178,12 @@ static dispatch_once_t onceToken;
     @synchronized(self) {
         NSArray * dnsResult = @[@"0", @"0"];
         MSDKDNSLOG(@"GetHostByName:%@",domain);
+        if (isInitialized == NO) {
+            @throw [NSException exceptionWithName:@"MSDKDns not initialized"
+                                            reason:@"The MSDKDns instance must be initialized before calling WGGetAllHostsByNames."
+                                          userInfo:nil];
+            return dnsResult;
+        }
         if (!domain || domain.length == 0) {
             //请求域名为空，返回空
             MSDKDNSLOG(@"MSDKDns Result is Empty!");
@@ -210,6 +218,12 @@ static dispatch_once_t onceToken;
     @synchronized(self) {
         NSDictionary * dnsResult = @{};
         MSDKDNSLOG(@"GetHostByName:%@",domains);
+        if (isInitialized == NO) {
+            @throw [NSException exceptionWithName:@"MSDKDns not initialized"
+                                            reason:@"The MSDKDns instance must be initialized before calling WGGetAllHostsByNames."
+                                          userInfo:nil];
+            return dnsResult;
+        }
         if (!domains || [domains count] == 0) {
             //请求域名为空，返回空
             MSDKDNSLOG(@"MSDKDns Result is Empty!");
@@ -237,6 +251,12 @@ static dispatch_once_t onceToken;
     @synchronized(self) {
         NSDictionary * dnsResult = @{};
         MSDKDNSLOG(@"GetAllHostByName:%@",domains);
+        if (isInitialized == NO) {
+            @throw [NSException exceptionWithName:@"MSDKDns not initialized"
+                                            reason:@"The MSDKDns instance must be initialized before calling WGGetAllHostsByNames."
+                                          userInfo:nil];
+            return dnsResult;
+        }
         if (!domains || [domains count] == 0) {
             //请求域名为空，返回空
             MSDKDNSLOG(@"MSDKDns Result is Empty!");
@@ -262,6 +282,12 @@ static dispatch_once_t onceToken;
 
 - (void)WGGetHostByNameAsync:(NSString *)domain returnIps:(void (^)(NSArray *))handler {
     @synchronized(self) {
+        if (isInitialized == NO) {
+            @throw [NSException exceptionWithName:@"MSDKDns not initialized"
+                                            reason:@"The MSDKDns instance must be initialized before calling WGGetAllHostsByNames."
+                                          userInfo:nil];
+            return;
+        }
         BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
         if (expiredIPEnabled) {
             //开启了使用过期缓存功能，给出提示建议使用同步接口进行解析
@@ -310,6 +336,12 @@ static dispatch_once_t onceToken;
 
 - (void)WGGetHostsByNamesAsync:(NSArray *)domains returnIps:(void (^)(NSDictionary *))handler {
     @synchronized(self) {
+        if (isInitialized == NO) {
+            @throw [NSException exceptionWithName:@"MSDKDns not initialized"
+                                            reason:@"The MSDKDns instance must be initialized before calling WGGetAllHostsByNames."
+                                          userInfo:nil];
+            return;
+        }
         BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
         if (expiredIPEnabled) {
             //开启了使用过期缓存功能，给出提示建议使用同步接口进行解析
@@ -353,6 +385,12 @@ static dispatch_once_t onceToken;
 
 - (void)WGGetAllHostsByNamesAsync:(NSArray *)domains returnIps:(void (^)(NSDictionary *))handler {
     @synchronized(self) {
+        if (isInitialized == NO) {
+            @throw [NSException exceptionWithName:@"MSDKDns not initialized"
+                                            reason:@"The MSDKDns instance must be initialized before calling WGGetAllHostsByNames."
+                                          userInfo:nil];
+            return;
+        }
         BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
         if (expiredIPEnabled) {
             //开启了使用过期缓存功能，给出提示建议使用同步接口进行解析
