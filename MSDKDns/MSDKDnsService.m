@@ -22,7 +22,7 @@
 @property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_4A;
 @property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_BOTH;
 @property (strong, nonatomic) LocalDnsResolver * localDnsResolver;
-@property (nonatomic, strong) void (^ completionHandler)();
+@property (nonatomic, copy) void (^ completionHandler)();
 @property (atomic, assign) BOOL isCallBack;
 @property (nonatomic) msdkdns::MSDKDNS_TLocalIPStack netStack;
 @property (nonatomic, assign) int httpdnsFailCount;
@@ -494,25 +494,26 @@
         if (!routeip) {
             routeip = @"";
         }
+        // 快照 resolver，再选定
+        HttpsDnsResolver *rA = self.httpDnsResolver_A;
+        HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
+        HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
+        
         NSString *req_type = @"a";
-        HttpsDnsResolver *httpResolver = self.httpDnsResolver_A;
-        if (self.httpDnsResolver_4A) {
+        HttpsDnsResolver *httpResolver = rA;
+        if (r4A) {
             req_type = @"aaaa";
-            httpResolver = self.httpDnsResolver_4A;
-        }else if (self.httpDnsResolver_BOTH) {
+            httpResolver = r4A;
+        } else if (rBoth) {
             req_type = @"addrs";
-            httpResolver = self.httpDnsResolver_BOTH;
-        }
-        if (httpResolver && httpResolver.statusCode) {
-            status = @(httpResolver.statusCode);
-        }
-        if (httpResolver && httpResolver.serviceIp) {
-            serviceIp = httpResolver.serviceIp;
-        }
-        if (httpResolver && httpResolver.expiredTime) {
-            expiredTime = httpResolver.expiredTime;
+            httpResolver = rBoth;
         }
         
+        if (httpResolver) {
+            status = @(httpResolver.statusCode);
+            if (httpResolver.serviceIp) serviceIp = httpResolver.serviceIp;
+            if (httpResolver.expiredTime) expiredTime = httpResolver.expiredTime;
+        }
         
         NSDictionary * dnsIPs = [self getDomainsDNSFromCache:self.toCheckDomains];
         NSString *localDnsIPs = [dnsIPs valueForKey:kMSDKDnsLDNS_IP];
@@ -561,7 +562,7 @@
 #pragma mark - retry
 - (void) retryHttpDns:(MSDKDnsResolver *)resolver {
     self.httpdnsFailCount += 1;
-    self.isRetryRequest = @YES;
+    self.isRetryRequest = YES;
     // NSLog(@"======%@======", self.origin);
     [self changeRetryEventName:self.origin];
     if (self.httpdnsFailCount < [[MSDKDnsParamsManager shareInstance] msdkDnsGetRetryTimesBeforeSwitchServer]) {
@@ -611,11 +612,19 @@
 
 - (void)callBack:(MSDKDnsResolver *)resolver Info:(NSDictionary *)info {
     if (self.isRetryRequest) {
-        if (self.httpDnsResolver_A && [self.httpDnsResolver_A.errorCode isEqualToString:MSDKDns_Success]) {
+        HttpsDnsResolver *rA = self.httpDnsResolver_A;
+        HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
+        HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
+        
+        NSString *codeA = rA.errorCode;
+        NSString *code4A = r4A.errorCode;
+        NSString *codeBoth = rBoth.errorCode;
+        
+        if (rA && [codeA isEqualToString:MSDKDns_Success]) {
             [self reportDataTransform];
-        } else if (self.httpDnsResolver_4A && [self.httpDnsResolver_4A.errorCode isEqualToString:MSDKDns_Success]) {
+        } else if (r4A && [code4A isEqualToString:MSDKDns_Success]) {
             [self reportDataTransform];
-        } else if (self.httpDnsResolver_BOTH && [self.httpDnsResolver_BOTH.errorCode isEqualToString:MSDKDns_Success]) {
+        } else if (rBoth && [codeBoth isEqualToString:MSDKDns_Success]) {
             [self reportDataTransform];
         }
     }
@@ -651,16 +660,31 @@
 - (void)excuteCallNotify {
     BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
     BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
-    if (self.httpDnsResolver_A && (httpOnly || expiredIPEnabled || [self.httpDnsResolver_A.errorCode isEqualToString:MSDKDns_Success] || self.localDnsResolver.isFinished)) {
-        if (self.httpDnsResolver_A.isFinished) {
+    
+    HttpsDnsResolver *rA = self.httpDnsResolver_A;
+    HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
+    HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
+    LocalDnsResolver *rLocal = self.localDnsResolver;
+    
+    // 抓取一次关键字段，避免多次跨线程访问
+    NSString *codeA = rA.errorCode;
+    BOOL finA = rA.isFinished;
+    NSString *code4A = r4A.errorCode;
+    BOOL fin4A = r4A.isFinished;
+    NSString *codeBoth = rBoth.errorCode;
+    BOOL finBoth = rBoth.isFinished;
+    BOOL localFin = rLocal.isFinished;
+    
+    if (rA && (httpOnly || expiredIPEnabled || [codeA isEqualToString:MSDKDns_Success] || localFin)) {
+        if (finA) {
             [self callNotify];
         }
-    } else if (self.httpDnsResolver_4A && (httpOnly || expiredIPEnabled || [self.httpDnsResolver_4A.errorCode isEqualToString:MSDKDns_Success] || self.localDnsResolver.isFinished)) {
-        if (self.httpDnsResolver_4A.isFinished) {
+    } else if (r4A && (httpOnly || expiredIPEnabled || [code4A isEqualToString:MSDKDns_Success] || localFin)) {
+        if (fin4A) {
             [self callNotify];
         }
-    } else if (self.httpDnsResolver_BOTH && (httpOnly || expiredIPEnabled || [self.httpDnsResolver_BOTH.errorCode isEqualToString:MSDKDns_Success] || self.localDnsResolver.isFinished)) {
-        if (self.httpDnsResolver_BOTH.isFinished) {
+    } else if (rBoth && (httpOnly || expiredIPEnabled || [codeBoth isEqualToString:MSDKDns_Success] || localFin)) {
+        if (finBoth) {
             [self callNotify];
         }
     }
@@ -670,12 +694,23 @@
     //LocalHttp 和 HttpDns均完成，则返回结果，如果开启了httpOnly或者使用过期缓存IP则只等待HttpDns完成就立即返回
     BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
     BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
-    if (httpOnly || expiredIPEnabled || self.localDnsResolver.isFinished) {
-        if (self.httpDnsResolver_A && self.httpDnsResolver_A.isFinished) {
+    
+    HttpsDnsResolver *rA = self.httpDnsResolver_A;
+    HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
+    HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
+    LocalDnsResolver *rLocal = self.localDnsResolver;
+    
+    BOOL localFin = rLocal.isFinished;
+    BOOL finA = rA.isFinished;
+    BOOL fin4A = r4A.isFinished;
+    BOOL finBoth = rBoth.isFinished;
+    
+    if (httpOnly || expiredIPEnabled || localFin) {
+        if (rA && finA) {
             [self reportDataTransform];
-        } else if (self.httpDnsResolver_4A && self.httpDnsResolver_4A.isFinished) {
+        } else if (r4A && fin4A) {
             [self reportDataTransform];
-        } else if (self.httpDnsResolver_BOTH && self.httpDnsResolver_BOTH.isFinished) {
+        } else if (rBoth && finBoth) {
             [self reportDataTransform];
         }
     }
@@ -706,6 +741,21 @@
     NSString *timeConsuming = @"";
     NSString *errorCode = MSDKDns_Success;
     NSString *expiredTime = @"";
+    HttpsDnsResolver *rA = self.httpDnsResolver_A;
+    HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
+    HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
+    HttpsDnsResolver *httpResolver = nil;
+    if (rA) {
+        httpResolver = rA;
+        req_type = @"a";
+    } else if (r4A) {
+        httpResolver = r4A;
+        req_type = @"aaaa";
+    } else if (rBoth) {
+        httpResolver = rBoth;
+        req_type = @"addrs";
+    }
+
 
     for (int i = 0; i < [self.toCheckDomains count]; i++) {
         NSString *domain = [self.toCheckDomains objectAtIndex:i];
@@ -728,24 +778,12 @@
         timeConsuming = [NSString stringWithFormat: @"%d", (int)timeInterval];
         // NSLog(@"====timeConsuming= %@=====", timeConsuming);
     }
-  
-    if (self.httpDnsResolver_A) {
-        status = @(self.httpDnsResolver_A.statusCode);
-        errorCode = self.httpDnsResolver_A.errorCode;
-        serviceIp = self.httpDnsResolver_A.serviceIp;
-        expiredTime = self.httpDnsResolver_A.expiredTime;
-    } else if (self.httpDnsResolver_4A) {
-        req_type = @"aaaa";
-        status = @(self.httpDnsResolver_4A.statusCode);
-        errorCode = self.httpDnsResolver_4A.errorCode;
-        serviceIp = self.httpDnsResolver_4A.serviceIp;
-        expiredTime = self.httpDnsResolver_4A.expiredTime;
-    } else if (self.httpDnsResolver_BOTH) {
-        req_type = @"addrs";
-        status = @(self.httpDnsResolver_BOTH.statusCode);
-        errorCode = self.httpDnsResolver_BOTH.errorCode;
-        serviceIp = self.httpDnsResolver_BOTH.serviceIp;
-        expiredTime = self.httpDnsResolver_BOTH.expiredTime;
+   
+    if (httpResolver) {
+        status = @(httpResolver.statusCode);
+        if (httpResolver.errorCode) errorCode = httpResolver.errorCode;
+        if (httpResolver.serviceIp) serviceIp = httpResolver.serviceIp;
+        if (httpResolver.expiredTime) expiredTime = httpResolver.expiredTime;
     }
 
     return @{
@@ -810,9 +848,10 @@
 - (void)callNotify {
     MSDKDNSLOG(@"callNotify! :%@", self.toCheckDomains);
     self.isCallBack = YES;
-    if (self.completionHandler) {
-        self.completionHandler();
-        self.completionHandler = nil;
+    void (^handler)(void) = self.completionHandler;
+    self.completionHandler = nil;
+    if (handler) { 
+        handler();
     }
 }
 
