@@ -22,7 +22,7 @@
 @property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_4A;
 @property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_BOTH;
 @property (strong, nonatomic) LocalDnsResolver * localDnsResolver;
-@property (nonatomic, copy) void (^ completionHandler)();
+@property (nonatomic, copy) void (^ completionHandler)(); 
 @property (atomic, assign) BOOL isCallBack;
 @property (nonatomic) msdkdns::MSDKDNS_TLocalIPStack netStack;
 @property (nonatomic, assign) int httpdnsFailCount;

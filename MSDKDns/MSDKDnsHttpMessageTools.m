@@ -244,7 +244,7 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
     CFReadStreamRef readStream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, cfrequest);
     self.inputStream = (__bridge_transfer NSInputStream *)readStream;
     
-    // 设置SNI host信息，关键步骤
+    // 设置SNI host信息，关键步骤 
     NSString *host = headFields[@"host"] ?: _curRequest.URL.host;
     if (host.length > 0) {
         [_inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
