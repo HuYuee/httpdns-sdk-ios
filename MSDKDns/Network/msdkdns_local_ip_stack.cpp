@@ -16,6 +16,9 @@
 #include <errno.h>
 #include <endian.h>
 #include <unistd.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <arpa/inet.h>
 #include "../MSDKDnsLog.h"
 
 /*
@@ -50,25 +53,141 @@ static int msdkdns_test_connect(int pf, struct sockaddr * addr, size_t addrlen) 
 }
 
 /*
- * The following functions determine whether IPv4 or IPv6 connectivity is
- * available in order to implement AI_ADDRCONFIG.
- *
- * Strictly speaking, AI_ADDRCONFIG should not look at whether connectivity is
- * available, but whether addresses of the specified family are "configured
- * on the local system". However, bionic doesn't currently support getifaddrs,
- * so checking for connectivity is the next best thing.
+ * Check if IPv6 address is a DNS64/NAT64 synthesized address
+ * DNS64 addresses typically have a 64:ff9b::/96 prefix
  */
-static int msdkdns_have_ipv6() {
-    static struct sockaddr_in6 sin6_test = {0};
-    sin6_test.sin6_family = AF_INET6;
-    sin6_test.sin6_port = 80;
-    sin6_test.sin6_flowinfo = 0;
-    sin6_test.sin6_scope_id = 0;
-    bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
-    sin6_test.sin6_addr.s6_addr[0] = 0x20;
-    // union
-    msdkdns::msdkdns_sockaddr_union addr = {.msdkdns_in6 = sin6_test};
-    return msdkdns_test_connect(PF_INET6, &addr.msdkdns_generic, sizeof(addr.msdkdns_in6));
+static int msdkdns_is_dns64_address(const struct sockaddr_in6* addr6) {
+    if (addr6 == NULL) return 0;
+    
+    const uint8_t* addr_bytes = addr6->sin6_addr.s6_addr;
+    
+    // Check for standard DNS64 prefix (64:ff9b::/96)
+    if (addr_bytes[0] == 0x64 && addr_bytes[1] == 0xff && addr_bytes[2] == 0x9b && addr_bytes[3] == 0x00) {
+        return 1;
+    }
+    
+    // Check for other common DNS64 prefixes
+    // 64:ff9b:1::/48
+    if (addr_bytes[0] == 0x64 && addr_bytes[1] == 0xff && addr_bytes[2] == 0x9b && addr_bytes[3] == 0x01) {
+        return 1;
+    }
+    
+    // Check for well-known prefix patterns used by some operators
+    // Look for patterns that suggest DNS64 translation
+    if (addr_bytes[0] == 0x20 && addr_bytes[1] == 0x01 && addr_bytes[2] == 0x00 && 
+        (addr_bytes[3] & 0xFC) == 0x00) {
+        // This might be a 2001:0::/32 prefix used by some DNS64 implementations
+        return 1;
+    }
+    
+    return 0;
+}
+
+/*
+ * Check if interface is a tunnel/virtual interface that might provide false IPv6 connectivity
+ */
+static int msdkdns_is_tunnel_interface(const char* ifname) {
+    if (ifname == NULL) return 0;
+    
+    // Common tunnel interface prefixes
+    if (strncmp(ifname, "tun", 3) == 0) return 1;
+    if (strncmp(ifname, "utun", 4) == 0) return 1;
+    if (strncmp(ifname, "ipsec", 5) == 0) return 1;
+    if (strncmp(ifname, "ppp", 3) == 0) return 1;
+    
+    return 0;
+}
+
+/*
+ * Check local network interfaces for actual IP stack configuration
+ * This provides more accurate detection than UDP connectivity tests
+ */
+static int msdkdns_check_local_interfaces() {
+    struct ifaddrs *ifaddr, *ifa;
+    int has_ipv4 = 0;
+    int has_ipv6 = 0;
+    int has_native_ipv6 = 0;
+    
+    if (getifaddrs(&ifaddr) == -1) {
+        MSDKDNSLOG(@"getifaddrs failed");
+        return 0;
+    }
+    
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL) continue;
+        
+        int family = ifa->ifa_addr->sa_family;
+        
+        // Skip loopback, non-active interfaces, and tunnel interfaces
+        if ((ifa->ifa_flags & IFF_UP) == 0 || (ifa->ifa_flags & IFF_LOOPBACK) || 
+            msdkdns_is_tunnel_interface(ifa->ifa_name)) {
+            continue;
+        }
+        
+        if (family == AF_INET) {
+            has_ipv4 = 1;
+        } else if (family == AF_INET6) {
+            has_ipv6 = 1;
+            
+            // Check if this is a native IPv6 address (not DNS64)
+            struct sockaddr_in6* addr6 = (struct sockaddr_in6*)ifa->ifa_addr;
+            if (!msdkdns_is_dns64_address(addr6)) {
+                has_native_ipv6 = 1;
+            }
+        }
+    }
+    
+    freeifaddrs(ifaddr);
+    
+    // Return bitmask: IPv4(1) | IPv6(2) | NativeIPv6(4)
+    int result = 0;
+    if (has_ipv4) result |= 1;
+    if (has_ipv6) result |= 2;
+    if (has_native_ipv6) result |= 4;
+    
+    return result;
+}
+
+/*
+ * Improved IPv6 detection that distinguishes between native IPv6 and DNS64/NAT64
+ */
+static int msdkdns_have_ipv6_improved() {
+    // First check local interfaces for actual IPv6 configuration
+    int interface_flags = msdkdns_check_local_interfaces();
+    int has_ipv6_interfaces = (interface_flags & 2) != 0;
+    int has_native_ipv6 = (interface_flags & 4) != 0;
+    
+    MSDKDNSLOG(@"Interface check: IPv6=%d, NativeIPv6=%d", has_ipv6_interfaces, has_native_ipv6);
+    
+    // If we have native IPv6 interfaces, do a connectivity test
+    if (has_native_ipv6) {
+        static struct sockaddr_in6 sin6_test = {0};
+        sin6_test.sin6_family = AF_INET6;
+        sin6_test.sin6_port = 80;
+        sin6_test.sin6_flowinfo = 0;
+        sin6_test.sin6_scope_id = 0;
+        bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
+        
+        // Use complete Google IPv6 DNS address (2001:4860:4860::8888)
+        sin6_test.sin6_addr.s6_addr[0] = 0x20;
+        sin6_test.sin6_addr.s6_addr[1] = 0x01;
+        sin6_test.sin6_addr.s6_addr[2] = 0x48;
+        sin6_test.sin6_addr.s6_addr[3] = 0x60;
+        sin6_test.sin6_addr.s6_addr[4] = 0x48;
+        sin6_test.sin6_addr.s6_addr[5] = 0x60;
+        sin6_test.sin6_addr.s6_addr[15] = 0x88;  // ::8888
+        
+        msdkdns::msdkdns_sockaddr_union addr = {.msdkdns_in6 = sin6_test};
+        return msdkdns_test_connect(PF_INET6, &addr.msdkdns_generic, sizeof(addr.msdkdns_in6));
+    }
+    
+    // If we only have DNS64/NAT64 interfaces, be more conservative
+    if (has_ipv6_interfaces && !has_native_ipv6) {
+        MSDKDNSLOG(@"DNS64/NAT64 environment detected, IPv6 support limited");
+        return 0; // Treat DNS64/NAT64 as limited IPv6 support
+    }
+    
+    return 0;
 }
 
 static int msdkdns_have_ipv4() {
@@ -83,8 +202,11 @@ static int msdkdns_have_ipv4() {
 
 msdkdns::MSDKDNS_TLocalIPStack msdkdns::msdkdns_detect_local_ip_stack() {
     MSDKDNSLOG(@"detect local ip stack");
+    
+    // Use improved detection that considers DNS64/NAT64 environments
     int have_ipv4 = msdkdns_have_ipv4();
-    int have_ipv6 = msdkdns_have_ipv6();
+    int have_ipv6 = msdkdns_have_ipv6_improved();
+    
     int local_stack = 0;
     if (have_ipv4) {
         local_stack |= msdkdns::MSDKDNS_ELocalIPStack_IPv4;
@@ -92,6 +214,7 @@ msdkdns::MSDKDNS_TLocalIPStack msdkdns::msdkdns_detect_local_ip_stack() {
     if (have_ipv6) {
         local_stack |= msdkdns::MSDKDNS_ELocalIPStack_IPv6;
     }
-    MSDKDNSLOG(@"have_ipv4:%d have_ipv6:%d", have_ipv4, have_ipv6);
+    
+    MSDKDNSLOG(@"improved detection: have_ipv4=%d have_ipv6=%d", have_ipv4, have_ipv6);
     return (msdkdns::MSDKDNS_TLocalIPStack) local_stack;
 }
