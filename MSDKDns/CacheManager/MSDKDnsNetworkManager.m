@@ -281,12 +281,23 @@ static SCNetworkConnectionFlags gConnectionFlags;
     if (success) {
         cursor = addrs;
         while (cursor != NULL) {
+            // Check if ifa_addr or ifa_name is NULL before accessing them
+            if (cursor->ifa_addr == NULL || cursor->ifa_name == NULL) {
+                cursor = cursor->ifa_next;
+                continue;
+            }
+            
             if (cursor->ifa_addr->sa_family == AF_INET && (cursor->ifa_flags & IFF_LOOPBACK) == 0) {
                 NSString * name = [NSString stringWithUTF8String:cursor->ifa_name];
                 if ([name isEqualToString:@"en0"]) {//Wifi adapter
                     char addrNamev4[INET_ADDRSTRLEN];
                     const struct sockaddr_in * ipv4 = (const struct sockaddr_in *)cursor->ifa_addr;
-                    waddr = [NSString stringWithUTF8String:inet_ntop(ipv4->sin_family, &(ipv4->sin_addr), addrNamev4, INET_ADDRSTRLEN)];
+                    const char *addr_str = inet_ntop(AF_INET, &(ipv4->sin_addr), addrNamev4, INET_ADDRSTRLEN);
+                    if (addr_str != NULL) {
+                        waddr = [NSString stringWithUTF8String:addr_str];
+                    }
+                    // Prefer IPv4, break immediately when found
+                    break;
                 }
             }
             else if (cursor->ifa_addr->sa_family == AF_INET6 && (cursor->ifa_flags & IFF_LOOPBACK) == 0)
@@ -295,7 +306,18 @@ static SCNetworkConnectionFlags gConnectionFlags;
                 if ([name isEqualToString:@"en0"]) {//Wifi adapter
                     char addrNamev6[INET6_ADDRSTRLEN];
                     const struct sockaddr_in6 * ipv6 = (const struct sockaddr_in6*)cursor->ifa_addr;
-                    waddr = [NSString stringWithUTF8String:inet_ntop(ipv6->sin6_family, &(ipv6->sin6_addr), addrNamev6, INET6_ADDRSTRLEN)];
+                    
+                    // Filter out link-local IPv6 addresses (fe80::)
+                    if (IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr)) {
+                        cursor = cursor->ifa_next;
+                        continue;
+                    }
+                    
+                    const char *addr_str = inet_ntop(AF_INET6, &(ipv6->sin6_addr), addrNamev6, INET6_ADDRSTRLEN);
+                    if (addr_str != NULL) {
+                        waddr = [NSString stringWithUTF8String:addr_str];
+                        // Don't break here, continue to find IPv4 if available
+                    }
                 }
             }
             cursor = cursor->ifa_next;
