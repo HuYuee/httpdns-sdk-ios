@@ -9,10 +9,10 @@
 
 @interface HttpsDnsResolver : MSDKDnsResolver
 
-@property (nonatomic, assign) NSInteger statusCode;
-@property (strong, nonatomic) NSString * errorCode;
-@property (strong, nonatomic) NSString * serviceIp;
-@property (strong, nonatomic) NSString * expiredTime;
+@property (atomic, assign) NSInteger statusCode;
+@property (strong, atomic) NSString * errorCode;
+@property (strong, atomic) NSString * serviceIp;
+@property (strong, atomic) NSString * expiredTime;
 
 - (void)startWithDomains:(NSArray *)domains timeOut:(float)timeOut dnsId:(int)dnsId dnsKey:(NSString *)dnsKey netStack:(msdkdns::MSDKDNS_TLocalIPStack)netStack encryptType:(NSInteger)encryptType;
 

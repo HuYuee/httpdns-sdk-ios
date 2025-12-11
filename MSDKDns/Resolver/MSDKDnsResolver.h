@@ -24,12 +24,12 @@ typedef enum {
 
 @interface MSDKDnsResolver : NSObject
 
-@property (assign, nonatomic) BOOL isFinished;
-@property (assign, nonatomic) BOOL isSucceed;
-@property (strong, nonatomic) NSDictionary * domainInfo;
-@property (strong, nonatomic) NSString * errorInfo;
-@property (strong, nonatomic) NSDate * startDate;
-@property (weak, nonatomic) id <MSDKDnsResolverDelegate> delegate;
+@property (atomic, assign) BOOL isFinished;
+@property (atomic, assign) BOOL isSucceed;
+@property (strong, atomic) NSDictionary * domainInfo;
+@property (strong, atomic) NSString * errorInfo;
+@property (strong, atomic) NSDate * startDate;
+@property (weak, atomic) id <MSDKDnsResolverDelegate> delegate;
 
 - (void)startWithDomains:(NSArray *)domains timeOut:(float)timeOut dnsId:(int)dnsId dnsKey:(NSString *)dnsKey netStack:(msdkdns::MSDKDNS_TLocalIPStack)netStack;
 - (BOOL)isIPLegal:(NSArray *)ipsArray use4A:(BOOL)use4A;

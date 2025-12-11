@@ -18,11 +18,11 @@
 @interface MSDKDnsService () <MSDKDnsResolverDelegate>
 
 @property (strong, nonatomic) NSArray * toCheckDomains;
-@property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_A;
-@property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_4A;
-@property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_BOTH;
-@property (strong, nonatomic) LocalDnsResolver * localDnsResolver;
-@property (nonatomic, copy) void (^ completionHandler)(); 
+@property (strong, atomic) HttpsDnsResolver * httpDnsResolver_A;
+@property (strong, atomic) HttpsDnsResolver * httpDnsResolver_4A;
+@property (strong, atomic) HttpsDnsResolver * httpDnsResolver_BOTH;
+@property (strong, atomic) LocalDnsResolver * localDnsResolver;
+@property (atomic, copy) void (^ completionHandler)(); 
 @property (atomic, assign) BOOL isCallBack;
 @property (nonatomic) msdkdns::MSDKDNS_TLocalIPStack netStack;
 @property (nonatomic, assign) int httpdnsFailCount;
@@ -44,11 +44,17 @@
 @implementation MSDKDnsService
 
 - (void)dealloc {
+    // 安全地清空 completionHandler,避免循环引用
+    @synchronized(self) {
+        self.completionHandler = nil;
+    }
+    
+    // 清空 resolver 引用
     [self setToCheckDomains:nil];
     [self setHttpDnsResolver_A:nil];
     [self setHttpDnsResolver_4A:nil];
+    [self setHttpDnsResolver_BOTH:nil];
     [self setLocalDnsResolver:nil];
-    [self setCompletionHandler:nil];
 }
 
 - (void)getHostsByNames:(NSArray *)domains timeOut:(float)timeOut dnsId:(int)dnsId dnsKey:(NSString *)dnsKey netStack:(msdkdns::MSDKDNS_TLocalIPStack)netStack encryptType:(NSInteger)encryptType returnIps:(void (^)())handler
@@ -148,11 +154,15 @@
             [self startLocalDns:timeOut dnsId:dnsId dnsKey:dnsKey];
         });
     }
+    
+    // 使用 weak-strong dance 避免循环引用
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeOut * NSEC_PER_SEC), [MSDKDnsInfoTool msdkdns_queue], ^{
-        if(!self.isCallBack) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf && !strongSelf.isCallBack) {
             MSDKDNSLOG(@"DnsService timeOut!");
-            [self dnsTimeoutAttaUpload:self.origin];
-            [self callNotify];
+            [strongSelf dnsTimeoutAttaUpload:strongSelf.origin];
+            [strongSelf callNotify];
         }
     });
 }
@@ -202,11 +212,15 @@
             [self startLocalDns:self.timeOut dnsId:self.dnsId dnsKey:self.dnsKey];
         });
     }
+    
+    // 使用 weak-strong dance 避免循环引用
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.timeOut * NSEC_PER_SEC), [MSDKDnsInfoTool msdkdns_queue], ^{
-        if(!self.isCallBack) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf && !strongSelf.isCallBack) {
             MSDKDNSLOG(@"DnsService timeOut!");
-            [self dnsTimeoutAttaUpload:self.origin];
-            [self callNotify];
+            [strongSelf dnsTimeoutAttaUpload:strongSelf.origin];
+            [strongSelf callNotify];
         }
     });
 }
@@ -509,10 +523,13 @@
             httpResolver = rBoth;
         }
         
+        // 安全地访问 httpResolver 属性，防止野指针访问
         if (httpResolver) {
             status = @(httpResolver.statusCode);
-            if (httpResolver.serviceIp) serviceIp = httpResolver.serviceIp;
-            if (httpResolver.expiredTime) expiredTime = httpResolver.expiredTime;
+            NSString *svcIp = httpResolver.serviceIp;
+            NSString *expTime = httpResolver.expiredTime;
+            if (svcIp) serviceIp = svcIp;
+            if (expTime) expiredTime = expTime;
         }
         
         NSDictionary * dnsIPs = [self getDomainsDNSFromCache:self.toCheckDomains];
@@ -612,13 +629,26 @@
 
 - (void)callBack:(MSDKDnsResolver *)resolver Info:(NSDictionary *)info {
     if (self.isRetryRequest) {
+        // 安全地获取 resolver 强引用
         HttpsDnsResolver *rA = self.httpDnsResolver_A;
         HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
         HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
         
-        NSString *codeA = rA.errorCode;
-        NSString *code4A = r4A.errorCode;
-        NSString *codeBoth = rBoth.errorCode;
+        // 安全地获取 errorCode，防止野指针访问
+        NSString *codeA = nil;
+        if (rA) {
+            codeA = rA.errorCode;
+        }
+        
+        NSString *code4A = nil;
+        if (r4A) {
+            code4A = r4A.errorCode;
+        }
+        
+        NSString *codeBoth = nil;
+        if (rBoth) {
+            codeBoth = rBoth.errorCode;
+        }
         
         if (rA && [codeA isEqualToString:MSDKDns_Success]) {
             [self reportDataTransform];
@@ -661,19 +691,38 @@
     BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
     BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
     
+    // 先安全地抓取 resolver 的强引用
     HttpsDnsResolver *rA = self.httpDnsResolver_A;
     HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
     HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
     LocalDnsResolver *rLocal = self.localDnsResolver;
     
-    // 抓取一次关键字段，避免多次跨线程访问
-    NSString *codeA = rA.errorCode;
-    BOOL finA = rA.isFinished;
-    NSString *code4A = r4A.errorCode;
-    BOOL fin4A = r4A.isFinished;
-    NSString *codeBoth = rBoth.errorCode;
-    BOOL finBoth = rBoth.isFinished;
-    BOOL localFin = rLocal.isFinished;
+    // 安全地抓取关键字段，防止野指针访问
+    NSString *codeA = nil;
+    BOOL finA = NO;
+    if (rA) {
+        codeA = rA.errorCode;
+        finA = rA.isFinished;
+    }
+    
+    NSString *code4A = nil;
+    BOOL fin4A = NO;
+    if (r4A) {
+        code4A = r4A.errorCode;
+        fin4A = r4A.isFinished;
+    }
+    
+    NSString *codeBoth = nil;
+    BOOL finBoth = NO;
+    if (rBoth) {
+        codeBoth = rBoth.errorCode;
+        finBoth = rBoth.isFinished;
+    }
+    
+    BOOL localFin = NO;
+    if (rLocal) {
+        localFin = rLocal.isFinished;
+    }
     
     if (rA && (httpOnly || expiredIPEnabled || [codeA isEqualToString:MSDKDns_Success] || localFin)) {
         if (finA) {
@@ -695,15 +744,32 @@
     BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
     BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
     
+    // 安全地获取 resolver 强引用
     HttpsDnsResolver *rA = self.httpDnsResolver_A;
     HttpsDnsResolver *r4A = self.httpDnsResolver_4A;
     HttpsDnsResolver *rBoth = self.httpDnsResolver_BOTH;
     LocalDnsResolver *rLocal = self.localDnsResolver;
     
-    BOOL localFin = rLocal.isFinished;
-    BOOL finA = rA.isFinished;
-    BOOL fin4A = r4A.isFinished;
-    BOOL finBoth = rBoth.isFinished;
+    // 安全地获取状态，防止野指针访问
+    BOOL localFin = NO;
+    if (rLocal) {
+        localFin = rLocal.isFinished;
+    }
+    
+    BOOL finA = NO;
+    if (rA) {
+        finA = rA.isFinished;
+    }
+    
+    BOOL fin4A = NO;
+    if (r4A) {
+        fin4A = r4A.isFinished;
+    }
+    
+    BOOL finBoth = NO;
+    if (rBoth) {
+        finBoth = rBoth.isFinished;
+    }
     
     if (httpOnly || expiredIPEnabled || localFin) {
         if (rA && finA) {
@@ -779,11 +845,15 @@
         // NSLog(@"====timeConsuming= %@=====", timeConsuming);
     }
    
+    // 安全地访问 httpResolver 属性，防止野指针访问
     if (httpResolver) {
         status = @(httpResolver.statusCode);
-        if (httpResolver.errorCode) errorCode = httpResolver.errorCode;
-        if (httpResolver.serviceIp) serviceIp = httpResolver.serviceIp;
-        if (httpResolver.expiredTime) expiredTime = httpResolver.expiredTime;
+        NSString *errCode = httpResolver.errorCode;
+        NSString *svcIp = httpResolver.serviceIp;
+        NSString *expTime = httpResolver.expiredTime;
+        if (errCode) errorCode = errCode;
+        if (svcIp) serviceIp = svcIp;
+        if (expTime) expiredTime = expTime;
     }
 
     return @{
@@ -847,9 +917,28 @@
 
 - (void)callNotify {
     MSDKDNSLOG(@"callNotify! :%@", self.toCheckDomains);
-    self.isCallBack = YES;
-    void (^handler)(void) = self.completionHandler;
-    self.completionHandler = nil;
+    
+    // 原子性地检查和设置 isCallBack,防止重复调用
+    BOOL alreadyCalled = YES;
+    @synchronized(self) {
+        if (!self.isCallBack) {
+            self.isCallBack = YES;
+            alreadyCalled = NO;
+        }
+    }
+    
+    if (alreadyCalled) {
+        MSDKDNSLOG(@"callNotify already called, skipping: %@", self.toCheckDomains);
+        return;
+    }
+    
+    // 安全地获取并清空 handler
+    void (^handler)(void) = nil;
+    @synchronized(self) {
+        handler = self.completionHandler;
+        self.completionHandler = nil;
+    }
+    
     if (handler) { 
         handler();
     }

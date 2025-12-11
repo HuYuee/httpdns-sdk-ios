@@ -155,6 +155,7 @@ static MSDKDnsManager * gSharedInstance = nil;
         [self resultDictionary:domains fromCache:cacheDomainDict];
         return result;
     }
+    NSLog(@"toCheckDomains===%@",toCheckDomains);
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
         int dnsId = [[MSDKDnsParamsManager shareInstance] msdkDnsGetMDnsId];
