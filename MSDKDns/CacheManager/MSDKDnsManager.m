@@ -42,6 +42,12 @@
 @implementation MSDKDnsManager
 
 - (void)dealloc {
+    // 取消并清理 dispatch_source_t，防止定时器回调访问已释放对象
+    if (_retryTimer) {
+        dispatch_source_cancel(_retryTimer);
+        _retryTimer = nil;
+    }
+    
     if (_domainDict) {
         [self.domainDict removeAllObjects];
         [self setDomainDict:nil];
@@ -1206,19 +1212,28 @@ static MSDKDnsManager * gSharedInstance = nil;
     // 创建新的重试任务
     self.retryTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, [MSDKDnsInfoTool msdkdns_queue]);
     dispatch_source_set_timer(self.retryTimer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * 60 * NSEC_PER_SEC)), DISPATCH_TIME_FOREVER, 0);
+    
+    // 使用 weak-strong dance 防止 block 中 self 被提前释放导致的野指针访问
+    __weak typeof(self) weakSelf = self;
     dispatch_source_set_event_handler(self.retryTimer, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            MSDKDNSLOG(@"MSDKDnsManager has been deallocated in retryTimer callback");
+            return;
+        }
+        
         MSDKDNSLOG(@"%d分钟时间到，开始拉取最新服务ip列表", delay);
-        if (dispatch_source_testcancel(self.retryTimer)) {
+        if (dispatch_source_testcancel(strongSelf.retryTimer)) {
             // 检查 dispatch_source_t 是否已被取消，并在取消后立即返回，防止进一步执行
             return;
         }
-        self.fetchConfigFailCount = 0;
+        strongSelf.fetchConfigFailCount = 0;
         HttpDnsEncryptType encryptType = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType];
         int dnsId = [[MSDKDnsParamsManager shareInstance] msdkDnsGetMDnsId];
         NSString *dnsKey = [[MSDKDnsParamsManager shareInstance] msdkDnsGetMDnsKey];
         NSString *token = [[MSDKDnsParamsManager shareInstance] msdkDnsGetMToken];
         
-        [self fetchConfig:dnsId encryptType:encryptType dnsKey:dnsKey token:token];
+        [strongSelf fetchConfig:dnsId encryptType:encryptType dnsKey:dnsKey token:token];
     });
     dispatch_resume(self.retryTimer);
 }

@@ -19,6 +19,10 @@
 
 @property (strong, nonatomic) MSDKDnsReachability *reachability;
 @property (strong, nonatomic, readwrite) NSString *networkType;
+// 保存 notification observer 对象，以便在 dealloc 中移除
+@property (strong, nonatomic) id reachabilityObserver;
+@property (strong, nonatomic) id backgroundObserver;
+@property (strong, nonatomic) id foregroundObserver;
 
 @end
 
@@ -28,6 +32,20 @@ static MSDKDnsNetworkManager *gManager = nil;
 
 - (void)dealloc
 {
+    // 移除所有通知观察者
+    if (_reachabilityObserver) {
+        [[NSNotificationCenter defaultCenter] removeObserver:_reachabilityObserver];
+        _reachabilityObserver = nil;
+    }
+    if (_backgroundObserver) {
+        [[NSNotificationCenter defaultCenter] removeObserver:_backgroundObserver];
+        _backgroundObserver = nil;
+    }
+    if (_foregroundObserver) {
+        [[NSNotificationCenter defaultCenter] removeObserver:_foregroundObserver];
+        _foregroundObserver = nil;
+    }
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.reachability stopNotifier];
     [self setReachability:nil];
@@ -64,11 +82,20 @@ static MSDKDnsNetworkManager *gManager = nil;
         if (self = [super init])
         {
             gManager = self;
-            [NSNotificationCenter.defaultCenter addObserverForName:kMSDKDnsReachabilityChangedNotification
+            
+            // 使用 weak-strong dance 防止循环引用和野指针访问
+            __weak typeof(self) weakSelf = self;
+            
+            _reachabilityObserver = [NSNotificationCenter.defaultCenter addObserverForName:kMSDKDnsReachabilityChangedNotification
                                                             object:nil
                                                              queue:nil
                                                         usingBlock:^(NSNotification *note)
              {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (!strongSelf) {
+                    MSDKDNSLOG(@"MSDKDnsNetworkManager has been deallocated in reachability notification");
+                    return;
+                }
                 BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
                 if (!expiredIPEnabled) {
                     MSDKDNSLOG(@"Network did changed,clear MSDKDns cache");
@@ -76,7 +103,7 @@ static MSDKDnsNetworkManager *gManager = nil;
                     [[MSDKDnsManager shareInstance] clearAllCache];
                 }
                 //对保活域名发送解析请求
-                [self getHostsByKeepAliveDomains];
+                [strongSelf getHostsByKeepAliveDomains];
                 
                 BOOL enableDetectHostServer = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEnableDetectHostServer];
                 if (enableDetectHostServer) {
@@ -87,11 +114,16 @@ static MSDKDnsNetworkManager *gManager = nil;
                  
             }];
             
-            [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidEnterBackgroundNotification
+            _backgroundObserver = [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidEnterBackgroundNotification
                                                             object:nil
                                                              queue:nil
                                                         usingBlock:^(NSNotification *note)
              {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (!strongSelf) {
+                    MSDKDNSLOG(@"MSDKDnsNetworkManager has been deallocated in background notification");
+                    return;
+                }
                 [[MSDKDnsManager shareInstance] enterBackgroundReportCacheData];
                 BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
                 BOOL persistCacheIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetPersistCacheIPEnabled];
@@ -101,18 +133,23 @@ static MSDKDnsNetworkManager *gManager = nil;
                     [[MSDKDnsManager shareInstance] clearAllCache];
                 }
                 //进入后台时，暂停网络监测
-                [self.reachability stopNotifier];
+                [strongSelf.reachability stopNotifier];
             }];
             
-            [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationWillEnterForegroundNotification
+            _foregroundObserver = [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationWillEnterForegroundNotification
                                                             object:nil
                                                              queue:nil
                                                         usingBlock:^(NSNotification *note)
              {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (!strongSelf) {
+                    MSDKDNSLOG(@"MSDKDnsNetworkManager has been deallocated in foreground notification");
+                    return;
+                }
                 //进入前台时，开启网络监测
-                [self.reachability startNotifier];
+                [strongSelf.reachability startNotifier];
                 //对保活域名发送解析请求
-                [self getHostsByKeepAliveDomains];
+                [strongSelf getHostsByKeepAliveDomains];
                 
                 BOOL enableDetectHostServer = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEnableDetectHostServer];
                 if (enableDetectHostServer) {

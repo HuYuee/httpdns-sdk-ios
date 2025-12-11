@@ -21,8 +21,14 @@
 - (void)startWithDomains:(NSArray *)domains timeOut:(float)timeOut dnsId:(int)dnsId dnsKey:(NSString *)dnsKey netStack:(msdkdns::MSDKDNS_TLocalIPStack)netStack {
     [super startWithDomains:domains timeOut:timeOut dnsId:dnsId dnsKey:dnsKey netStack:netStack];
     MSDKDNSLOG(@"LocalDns domain is %@, timeOut is %f", domains, timeOut);
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeOut * NSEC_PER_SEC), [MSDKDnsInfoTool msdkdns_local_queue], ^{
-        [self localDnsTimeout];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            MSDKDNSLOG(@"LocalDnsResolver has been deallocated in timeout callback");
+            return;
+        }
+        [strongSelf localDnsTimeout];
     });
     self.domainInfo = nil;
     self.isFinished = NO;
@@ -41,32 +47,55 @@
         [domainInfo setObject:@{kIP:ipsArray, kDnsTimeConsuming:timeConsuming} forKey:domain];
     }
     
+    // 使用 weak-strong dance 防止 block 中 self 被提前释放导致的野指针访问
+    __weak typeof(self) weakSelf = self;
     dispatch_async([MSDKDnsInfoTool msdkdns_local_queue], ^{
-        if (!self.hasDelegated) {
-            self.hasDelegated = YES;
-            MSDKDNSLOG(@"LocalDns Succeed");
-            self.domainInfo = domainInfo;
-            self.isFinished = YES;
-            self.isSucceed = YES;
-            
-            if (self.delegate && [self.delegate respondsToSelector:@selector(resolver:didGetDomainInfo:)]) {
-                [self.delegate resolver:self didGetDomainInfo:self.domainInfo];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            MSDKDNSLOG(@"LocalDnsResolver has been deallocated, skip callback");
+            return;
+        }
+        
+        // 使用 @synchronized 保证 check-and-set 操作的原子性
+        @synchronized (strongSelf) {
+            if (strongSelf.hasDelegated) {
+                return;
             }
+            strongSelf.hasDelegated = YES;
+        }
+        
+        MSDKDNSLOG(@"LocalDns Succeed");
+        strongSelf.domainInfo = domainInfo;
+        strongSelf.isFinished = YES;
+        strongSelf.isSucceed = YES;
+        
+        // 缓存 delegate 引用，防止回调过程中被清空
+        id<MSDKDnsResolverDelegate> delegate = strongSelf.delegate;
+        if (delegate && [delegate respondsToSelector:@selector(resolver:didGetDomainInfo:)]) {
+            [delegate resolver:strongSelf didGetDomainInfo:strongSelf.domainInfo];
         }
     });
 }
 
 - (void)localDnsTimeout {
-    if (!self.hasDelegated) {
-        self.hasDelegated = YES;
-        MSDKDNSLOG(@"LocalDns timeout");
-        self.domainInfo = nil;
-        self.isFinished = YES;
-        self.isSucceed = NO;
-        self.errorInfo = @"LocalDns timeout";
-        if (self.delegate && [self.delegate respondsToSelector:@selector(resolver:getDomainError:retry:)]) {
-            [self.delegate resolver:self getDomainError:self.errorInfo retry:NO];
+    // 使用 @synchronized 保证 check-and-set 操作的原子性
+    @synchronized (self) {
+        if (self.hasDelegated) {
+            return;
         }
+        self.hasDelegated = YES;
+    }
+    
+    MSDKDNSLOG(@"LocalDns timeout");
+    self.domainInfo = nil;
+    self.isFinished = YES;
+    self.isSucceed = NO;
+    self.errorInfo = @"LocalDns timeout";
+    
+    // 缓存 delegate 引用，防止回调过程中被清空
+    id<MSDKDnsResolverDelegate> delegate = self.delegate;
+    if (delegate && [delegate respondsToSelector:@selector(resolver:getDomainError:retry:)]) {
+        [delegate resolver:self getDomainError:self.errorInfo retry:NO];
     }
 }
 
