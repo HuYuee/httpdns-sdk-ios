@@ -251,8 +251,7 @@
 - (void)resolver:(MSDKDnsResolver *)resolver didGetDomainInfo:(NSDictionary *)domainInfo {
     MSDKDNSLOG(@"%@ %@ domainInfo = %@", self.toCheckDomains, [resolver class], domainInfo);
     
-    // 【修复1】在异步block外持有resolver强引用，防止在block执行期间被释放
-    // 这是解决 EXC_BAD_ACCESS crash 的核心修复
+    // 在异步block外持有resolver强引用，防止在block执行期间被释放
     HttpsDnsResolver *strongHttpsResolver = nil;
     if ([resolver isKindOfClass:[HttpsDnsResolver class]]) {
         strongHttpsResolver = (HttpsDnsResolver *)resolver;
@@ -450,7 +449,7 @@
         if (tempDict) {
             cacheDict = [NSMutableDictionary dictionaryWithDictionary:tempDict];
             
-            // 【修复】先持有强引用，防止在异步block中访问时对象被替换
+            // 先持有强引用，防止在异步block中访问时对象被替换
             HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
             HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
             
@@ -515,7 +514,7 @@
             routeip = @"";
         }
         
-        // 【修复3】先持有强引用，防止在多次访问属性期间对象被替换
+        // 先持有强引用，防止在多次访问属性期间对象被替换
         HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
         HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
         HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
@@ -678,7 +677,7 @@
     BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
     BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
     
-    // 【核心修复】先持有强引用，防止在条件判断和使用之间对象被替换
+    // 先持有强引用，防止在条件判断和使用之间对象被替换
     HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
     HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
     HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
@@ -762,7 +761,7 @@
         // NSLog(@"====timeConsuming= %@=====", timeConsuming);
     }
   
-    // 【修复2】先持有强引用，防止在多次访问属性期间对象被替换导致野指针
+    // 先持有强引用，防止在多次访问属性期间对象被替换导致野指针
     HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
     HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
     HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
@@ -847,14 +846,7 @@
 
 - (void)callNotify {
     MSDKDNSLOG(@"callNotify! :%@", self.toCheckDomains);
-    
-    // 【修复5】防止重复调用completionHandler
-    if (self.isCallBack) {
-        MSDKDNSLOG(@"callNotify already called, skipping: %@", self.toCheckDomains);
-        return;
-    }
     self.isCallBack = YES;
-    
     if (self.completionHandler) {
         self.completionHandler();
         self.completionHandler = nil;
@@ -874,7 +866,7 @@
             cacheDict = [NSMutableDictionary dictionaryWithDictionary:tempDict];
         }
         if (resolver) {
-            // 【修复】先持有强引用，防止访问domainInfo时对象被替换
+            // 先持有强引用，防止访问domainInfo时对象被替换
             HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
             HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
             HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
