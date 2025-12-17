@@ -250,6 +250,14 @@
 
 - (void)resolver:(MSDKDnsResolver *)resolver didGetDomainInfo:(NSDictionary *)domainInfo {
     MSDKDNSLOG(@"%@ %@ domainInfo = %@", self.toCheckDomains, [resolver class], domainInfo);
+    
+    // 【修复1】在异步block外持有resolver强引用，防止在block执行期间被释放
+    // 这是解决 EXC_BAD_ACCESS crash 的核心修复
+    HttpsDnsResolver *strongHttpsResolver = nil;
+    if ([resolver isKindOfClass:[HttpsDnsResolver class]]) {
+        strongHttpsResolver = (HttpsDnsResolver *)resolver;
+    }
+    
     // 结果存缓存
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
         [self cacheDomainInfo:resolver];
@@ -259,7 +267,11 @@
             kDnsRetry: @(self.httpdnsFailCount)
         };
         [self callBack:resolver Info:info];
-        if (resolver == self.httpDnsResolver_A || resolver == self.httpDnsResolver_4A || resolver == self.httpDnsResolver_BOTH) {
+        
+        // 使用strongHttpsResolver确保对象在block执行期间不会被释放
+        if (strongHttpsResolver && (strongHttpsResolver == self.httpDnsResolver_A || 
+            strongHttpsResolver == self.httpDnsResolver_4A || 
+            strongHttpsResolver == self.httpDnsResolver_BOTH)) {
             NSArray *keepAliveDomains = [[MSDKDnsParamsManager shareInstance] msdkDnsGetKeepAliveDomains];
             BOOL enableKeepDomainsAlive = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEnableKeepDomainsAlive];
             // 获取延迟记录字典
@@ -438,23 +450,31 @@
         if (tempDict) {
             cacheDict = [NSMutableDictionary dictionaryWithDictionary:tempDict];
             
-            if (self.httpDnsResolver_A && self.httpDnsResolver_A.domainInfo) {
-                
-                NSDictionary *cacheValue = [self.httpDnsResolver_A.domainInfo objectForKey:host];
-                if (cacheValue) {
-                    NSMutableDictionary *newCacheValue = [NSMutableDictionary dictionaryWithDictionary:cacheValue];
-                    [newCacheValue setValue:ips forKey:kIP];
-                    [cacheDict setObject:newCacheValue forKey:kMSDKHttpDnsCache_A];
-                }
-                
-            } else if (self.httpDnsResolver_BOTH && self.httpDnsResolver_BOTH.domainInfo) {
-                NSDictionary *cacheValue = [self.httpDnsResolver_BOTH.domainInfo objectForKey:host];
-                if (cacheValue) {
-                    NSDictionary *ipv4CacheValue = [cacheValue objectForKey:@"ipv4"];
-                    if (ipv4CacheValue) {
-                        NSMutableDictionary *newCacheValue = [NSMutableDictionary dictionaryWithDictionary:ipv4CacheValue];
+            // 【修复】先持有强引用，防止在异步block中访问时对象被替换
+            HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
+            HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
+            
+            if (resolverA) {
+                NSDictionary *domainInfo = resolverA.domainInfo;
+                if (domainInfo) {
+                    NSDictionary *cacheValue = [domainInfo objectForKey:host];
+                    if (cacheValue) {
+                        NSMutableDictionary *newCacheValue = [NSMutableDictionary dictionaryWithDictionary:cacheValue];
                         [newCacheValue setValue:ips forKey:kIP];
                         [cacheDict setObject:newCacheValue forKey:kMSDKHttpDnsCache_A];
+                    }
+                }
+            } else if (resolverBoth) {
+                NSDictionary *domainInfo = resolverBoth.domainInfo;
+                if (domainInfo) {
+                    NSDictionary *cacheValue = [domainInfo objectForKey:host];
+                    if (cacheValue) {
+                        NSDictionary *ipv4CacheValue = [cacheValue objectForKey:@"ipv4"];
+                        if (ipv4CacheValue) {
+                            NSMutableDictionary *newCacheValue = [NSMutableDictionary dictionaryWithDictionary:ipv4CacheValue];
+                            [newCacheValue setValue:ips forKey:kIP];
+                            [cacheDict setObject:newCacheValue forKey:kMSDKHttpDnsCache_A];
+                        }
                     }
                 }
             }
@@ -494,14 +514,20 @@
         if (!routeip) {
             routeip = @"";
         }
+        
+        // 【修复3】先持有强引用，防止在多次访问属性期间对象被替换
+        HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
+        HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
+        HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
+        
         NSString *req_type = @"a";
-        HttpsDnsResolver *httpResolver = self.httpDnsResolver_A;
-        if (self.httpDnsResolver_4A) {
+        HttpsDnsResolver *httpResolver = resolverA;
+        if (resolver4A) {
             req_type = @"aaaa";
-            httpResolver = self.httpDnsResolver_4A;
-        }else if (self.httpDnsResolver_BOTH) {
+            httpResolver = resolver4A;
+        }else if (resolverBoth) {
             req_type = @"addrs";
-            httpResolver = self.httpDnsResolver_BOTH;
+            httpResolver = resolverBoth;
         }
         if (httpResolver && httpResolver.statusCode) {
             status = @(httpResolver.statusCode);
@@ -651,16 +677,23 @@
 - (void)excuteCallNotify {
     BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
     BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
-    if (self.httpDnsResolver_A && (httpOnly || expiredIPEnabled || [self.httpDnsResolver_A.errorCode isEqualToString:MSDKDns_Success] || self.localDnsResolver.isFinished)) {
-        if (self.httpDnsResolver_A.isFinished) {
+    
+    // 【核心修复】先持有强引用，防止在条件判断和使用之间对象被替换
+    HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
+    HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
+    HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
+    LocalDnsResolver *localResolver = self.localDnsResolver;
+    
+    if (resolverA && (httpOnly || expiredIPEnabled || [resolverA.errorCode isEqualToString:MSDKDns_Success] || localResolver.isFinished)) {
+        if (resolverA.isFinished) {
             [self callNotify];
         }
-    } else if (self.httpDnsResolver_4A && (httpOnly || expiredIPEnabled || [self.httpDnsResolver_4A.errorCode isEqualToString:MSDKDns_Success] || self.localDnsResolver.isFinished)) {
-        if (self.httpDnsResolver_4A.isFinished) {
+    } else if (resolver4A && (httpOnly || expiredIPEnabled || [resolver4A.errorCode isEqualToString:MSDKDns_Success] || localResolver.isFinished)) {
+        if (resolver4A.isFinished) {
             [self callNotify];
         }
-    } else if (self.httpDnsResolver_BOTH && (httpOnly || expiredIPEnabled || [self.httpDnsResolver_BOTH.errorCode isEqualToString:MSDKDns_Success] || self.localDnsResolver.isFinished)) {
-        if (self.httpDnsResolver_BOTH.isFinished) {
+    } else if (resolverBoth && (httpOnly || expiredIPEnabled || [resolverBoth.errorCode isEqualToString:MSDKDns_Success] || localResolver.isFinished)) {
+        if (resolverBoth.isFinished) {
             [self callNotify];
         }
     }
@@ -729,23 +762,28 @@
         // NSLog(@"====timeConsuming= %@=====", timeConsuming);
     }
   
-    if (self.httpDnsResolver_A) {
-        status = @(self.httpDnsResolver_A.statusCode);
-        errorCode = self.httpDnsResolver_A.errorCode;
-        serviceIp = self.httpDnsResolver_A.serviceIp;
-        expiredTime = self.httpDnsResolver_A.expiredTime;
-    } else if (self.httpDnsResolver_4A) {
+    // 【修复2】先持有强引用，防止在多次访问属性期间对象被替换导致野指针
+    HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
+    HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
+    HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
+    
+    if (resolverA) {
+        status = @(resolverA.statusCode);
+        errorCode = resolverA.errorCode;
+        serviceIp = resolverA.serviceIp;
+        expiredTime = resolverA.expiredTime;
+    } else if (resolver4A) {
         req_type = @"aaaa";
-        status = @(self.httpDnsResolver_4A.statusCode);
-        errorCode = self.httpDnsResolver_4A.errorCode;
-        serviceIp = self.httpDnsResolver_4A.serviceIp;
-        expiredTime = self.httpDnsResolver_4A.expiredTime;
-    } else if (self.httpDnsResolver_BOTH) {
+        status = @(resolver4A.statusCode);
+        errorCode = resolver4A.errorCode;
+        serviceIp = resolver4A.serviceIp;
+        expiredTime = resolver4A.expiredTime;
+    } else if (resolverBoth) {
         req_type = @"addrs";
-        status = @(self.httpDnsResolver_BOTH.statusCode);
-        errorCode = self.httpDnsResolver_BOTH.errorCode;
-        serviceIp = self.httpDnsResolver_BOTH.serviceIp;
-        expiredTime = self.httpDnsResolver_BOTH.expiredTime;
+        status = @(resolverBoth.statusCode);
+        errorCode = resolverBoth.errorCode;
+        serviceIp = resolverBoth.serviceIp;
+        expiredTime = resolverBoth.expiredTime;
     }
 
     return @{
@@ -809,7 +847,14 @@
 
 - (void)callNotify {
     MSDKDNSLOG(@"callNotify! :%@", self.toCheckDomains);
+    
+    // 【修复5】防止重复调用completionHandler
+    if (self.isCallBack) {
+        MSDKDNSLOG(@"callNotify already called, skipping: %@", self.toCheckDomains);
+        return;
+    }
     self.isCallBack = YES;
+    
     if (self.completionHandler) {
         self.completionHandler();
         self.completionHandler = nil;
@@ -829,33 +874,51 @@
             cacheDict = [NSMutableDictionary dictionaryWithDictionary:tempDict];
         }
         if (resolver) {
-            if ((resolver == self.httpDnsResolver_A) && self.httpDnsResolver_A.domainInfo) {
-                NSDictionary *cacheValue = [self.httpDnsResolver_A.domainInfo objectForKey:domain];
-                if (cacheValue) {
-                    [cacheDict setObject:cacheValue forKey:kMSDKHttpDnsCache_A];
-                    [cacheDict removeObjectForKey:kMSDKHttpDnsCache_4A];
-                }
-            } else if ((resolver == self.httpDnsResolver_4A) && self.httpDnsResolver_4A.domainInfo) {
-                NSDictionary *cacheValue = [self.httpDnsResolver_4A.domainInfo objectForKey:domain];
-                if (cacheValue) {
-                    [cacheDict setObject:cacheValue forKey:kMSDKHttpDnsCache_4A];
-                    [cacheDict removeObjectForKey:kMSDKHttpDnsCache_A];
-                }
-            } else if ((resolver == self.localDnsResolver) && self.localDnsResolver.domainInfo) {
-                NSDictionary *cacheValue = [self.localDnsResolver.domainInfo objectForKey:domain];
-                if (cacheValue) {
-                    [cacheDict setObject:cacheValue forKey:kMSDKLocalDnsCache];
-                }
-            } else if ((resolver == self.httpDnsResolver_BOTH) && self.httpDnsResolver_BOTH.domainInfo) {
-                NSDictionary *cacheValue = [self.httpDnsResolver_BOTH.domainInfo objectForKey:domain];
-                if (cacheValue) {
-                    NSDictionary *ipv4CacheValue = [cacheValue objectForKey:@"ipv4"];
-                    NSDictionary *ipv6CacheValue = [cacheValue objectForKey:@"ipv6"];
-                    if (ipv4CacheValue) {
-                        [cacheDict setObject:ipv4CacheValue forKey:kMSDKHttpDnsCache_A];
+            // 【修复】先持有强引用，防止访问domainInfo时对象被替换
+            HttpsDnsResolver *resolverA = self.httpDnsResolver_A;
+            HttpsDnsResolver *resolver4A = self.httpDnsResolver_4A;
+            HttpsDnsResolver *resolverBoth = self.httpDnsResolver_BOTH;
+            LocalDnsResolver *localResolver = self.localDnsResolver;
+            
+            if ((resolver == resolverA) && resolverA) {
+                NSDictionary *domainInfo = resolverA.domainInfo;
+                if (domainInfo) {
+                    NSDictionary *cacheValue = [domainInfo objectForKey:domain];
+                    if (cacheValue) {
+                        [cacheDict setObject:cacheValue forKey:kMSDKHttpDnsCache_A];
+                        [cacheDict removeObjectForKey:kMSDKHttpDnsCache_4A];
                     }
-                    if (ipv6CacheValue) {
-                        [cacheDict setObject:ipv6CacheValue forKey:kMSDKHttpDnsCache_4A];
+                }
+            } else if ((resolver == resolver4A) && resolver4A) {
+                NSDictionary *domainInfo = resolver4A.domainInfo;
+                if (domainInfo) {
+                    NSDictionary *cacheValue = [domainInfo objectForKey:domain];
+                    if (cacheValue) {
+                        [cacheDict setObject:cacheValue forKey:kMSDKHttpDnsCache_4A];
+                        [cacheDict removeObjectForKey:kMSDKHttpDnsCache_A];
+                    }
+                }
+            } else if ((resolver == localResolver) && localResolver) {
+                NSDictionary *domainInfo = localResolver.domainInfo;
+                if (domainInfo) {
+                    NSDictionary *cacheValue = [domainInfo objectForKey:domain];
+                    if (cacheValue) {
+                        [cacheDict setObject:cacheValue forKey:kMSDKLocalDnsCache];
+                    }
+                }
+            } else if ((resolver == resolverBoth) && resolverBoth) {
+                NSDictionary *domainInfo = resolverBoth.domainInfo;
+                if (domainInfo) {
+                    NSDictionary *cacheValue = [domainInfo objectForKey:domain];
+                    if (cacheValue) {
+                        NSDictionary *ipv4CacheValue = [cacheValue objectForKey:@"ipv4"];
+                        NSDictionary *ipv6CacheValue = [cacheValue objectForKey:@"ipv6"];
+                        if (ipv4CacheValue) {
+                            [cacheDict setObject:ipv4CacheValue forKey:kMSDKHttpDnsCache_A];
+                        }
+                        if (ipv6CacheValue) {
+                            [cacheDict setObject:ipv6CacheValue forKey:kMSDKHttpDnsCache_4A];
+                        }
                     }
                 }
             }
