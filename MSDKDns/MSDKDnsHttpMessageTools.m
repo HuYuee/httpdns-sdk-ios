@@ -205,68 +205,65 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
  * 使用CFHTTPMessage转发请求
  */
 - (void)startRequest {
+    // 原请求的header信息
     NSDictionary *headFields = _curRequest.allHTTPHeaderFields;
-    CFURLRef requestURL = CFURLCreateWithString(kCFAllocatorDefault,
-                                                (__bridge CFStringRef)_curRequest.URL.absoluteString,
-                                                NULL);
-    
-    // 方法：nil 时默认 GET；不转移所有权，无需释放
-    NSString *method = _curRequest.HTTPMethod ?: @"GET";
-    CFStringRef requestMethod = (__bridge CFStringRef)method;
-    
+    CFStringRef url = (__bridge CFStringRef) [_curRequest.URL absoluteString];
+    CFURLRef requestURL = CFURLCreateWithString(kCFAllocatorDefault, url, NULL);
+    // 原请求所使用的方法，GET或POST
+    CFStringRef requestMethod = (__bridge_retained CFStringRef) _curRequest.HTTPMethod;
     // 根据请求的url、方法、版本创建CFHTTPMessageRef对象
     CFHTTPMessageRef cfrequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, requestMethod, requestURL, kCFHTTPVersion1_1);
-    
     // 添加http post请求所附带的数据
-    CFDataRef bodyData = NULL;
+    CFStringRef requestBody = CFSTR("");
+    CFDataRef bodyData = CFStringCreateExternalRepresentation(kCFAllocatorDefault, requestBody, kCFStringEncodingUTF8, 0);
     if (_curRequest.HTTPBody) {
-        bodyData = (__bridge_retained CFDataRef)_curRequest.HTTPBody; // +1
-    } else if (_curRequest.HTTPBodyStream) {
-        NSData *data = [self dataWithInputStream:_curRequest.HTTPBodyStream] ?: [NSData data];
-        bodyData = (__bridge_retained CFDataRef)data; // +1
-    }
-    if (bodyData) {
+        bodyData = (__bridge_retained CFDataRef) _curRequest.HTTPBody;
         CFHTTPMessageSetBody(cfrequest, bodyData);
-        CFRelease(bodyData); // 配对释放
+    }  else if(_curRequest.HTTPBodyStream) {
+        NSData *data = [self dataWithInputStream:_curRequest.HTTPBodyStream];
+        CFDataRef body = (__bridge_retained CFDataRef) data;
+        CFHTTPMessageSetBody(cfrequest, body);
+        CFRelease(body);
+    } else {
+        CFHTTPMessageSetBody(cfrequest, bodyData);
     }
-    
-    // 复制 header（用 objectForKey，并跳过 nil）
-    for (NSString *key in headFields) {
-        NSString *val = [headFields objectForKey:key];
-        if (val) {
-            CFHTTPMessageSetHeaderFieldValue(cfrequest,
-                                             (__bridge CFStringRef)key,
-                                             (__bridge CFStringRef)val);
-        }
+
+    // copy原请求的header信息
+    for (NSString* header in headFields) {
+        CFStringRef requestHeader = (__bridge CFStringRef) header;
+        CFStringRef requestHeaderValue = (__bridge CFStringRef) [headFields valueForKey:header];
+        CFHTTPMessageSetHeaderFieldValue(cfrequest, requestHeader, requestHeaderValue);
     }
-    
-    // 创建CFHTTPMessage对象的输入流并交给 ARC 管理
+
+    // 创建CFHTTPMessage对象的输入流
     CFReadStreamRef readStream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, cfrequest);
-    self.inputStream = (__bridge_transfer NSInputStream *)readStream;
-    
-    // 设置SNI host信息，关键步骤 
-    NSString *host = headFields[@"host"] ?: _curRequest.URL.host;
-    if (host.length > 0) {
-        [_inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
-                           forKey:NSStreamSocketSecurityLevelKey];
-        
-        NSDictionary *sslProperties = @{ (__bridge NSString *)kCFStreamSSLPeerName : host };
-        [_inputStream setProperty:sslProperties
-                           forKey:(__bridge NSString *)kCFStreamPropertySSLSettings];
+    self.inputStream = (__bridge_transfer NSInputStream *) readStream;
+
+    // 设置SNI host信息，关键步骤
+    NSString *host = [_curRequest.allHTTPHeaderFields objectForKey:@"host"];
+    if (!host) {
+        host = _curRequest.URL.host;
     }
-    
-    _inputStream.delegate = self;
-    
+
+    [_inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL forKey:NSStreamSocketSecurityLevelKey];
+    NSDictionary *sslProperties = [[NSDictionary alloc] initWithObjectsAndKeys: host, (__bridge id) kCFStreamSSLPeerName, nil];
+    [_inputStream setProperty:sslProperties forKey:(__bridge_transfer NSString *) kCFStreamPropertySSLSettings];
+    [_inputStream setDelegate:self];
+
     if (!_curRunLoop) {
         // 保存当前线程的runloop，这对于重定向的请求很关键
         self.curRunLoop = [NSRunLoop currentRunLoop];
     }
+    // 将请求放入当前runloop的事件队列
     [_inputStream scheduleInRunLoop:_curRunLoop forMode:NSRunLoopCommonModes];
     [_inputStream open];
-    
-    // 仅释放你创建（Create/Copy）的 CF 对象
+
     CFRelease(cfrequest);
     CFRelease(requestURL);
+    cfrequest = NULL;
+    CFRelease(bodyData);
+    CFRelease(requestBody);
+    CFRelease(requestMethod);
 }
 
 -(NSData*)dataWithInputStream:(NSInputStream*)stream {
