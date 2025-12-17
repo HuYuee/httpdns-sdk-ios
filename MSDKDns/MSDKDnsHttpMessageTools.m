@@ -227,29 +227,29 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
     } else {
         CFHTTPMessageSetBody(cfrequest, bodyData);
     }
-
+    
     // copy原请求的header信息
     for (NSString* header in headFields) {
         CFStringRef requestHeader = (__bridge CFStringRef) header;
         CFStringRef requestHeaderValue = (__bridge CFStringRef) [headFields valueForKey:header];
         CFHTTPMessageSetHeaderFieldValue(cfrequest, requestHeader, requestHeaderValue);
     }
-
+    
     // 创建CFHTTPMessage对象的输入流
     CFReadStreamRef readStream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, cfrequest);
     self.inputStream = (__bridge_transfer NSInputStream *) readStream;
-
+    
     // 设置SNI host信息，关键步骤
     NSString *host = [_curRequest.allHTTPHeaderFields objectForKey:@"host"];
     if (!host) {
         host = _curRequest.URL.host;
     }
-
+        
     [_inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL forKey:NSStreamSocketSecurityLevelKey];
     NSDictionary *sslProperties = [[NSDictionary alloc] initWithObjectsAndKeys: host, (__bridge id) kCFStreamSSLPeerName, nil];
     [_inputStream setProperty:sslProperties forKey:(__bridge_transfer NSString *) kCFStreamPropertySSLSettings];
     [_inputStream setDelegate:self];
-
+    
     if (!_curRunLoop) {
         // 保存当前线程的runloop，这对于重定向的请求很关键
         self.curRunLoop = [NSRunLoop currentRunLoop];
@@ -257,7 +257,7 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
     // 将请求放入当前runloop的事件队列
     [_inputStream scheduleInRunLoop:_curRunLoop forMode:NSRunLoopCommonModes];
     [_inputStream open];
-
+    
     CFRelease(cfrequest);
     CFRelease(requestURL);
     cfrequest = NULL;
