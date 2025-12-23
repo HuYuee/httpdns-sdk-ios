@@ -57,7 +57,7 @@ static NSURLSession *_resolveHOSTSession = nil;
     self.expiredTime = expiredTimestamp;
     NSString *domainAndTime = [NSString stringWithFormat:@"%@;%@", domainStr, expiredTimestamp];
     
-    // NSLog(@"domainAndTime ===== %@ === domain ==== %@", domainAndTime, domainStr);
+    // MSDKDNSLOG(@"domainAndTime: %@, domain: %@", domainAndTime, domainStr);
     NSURL *httpDnsUrl = [MSDKDnsInfoTool httpsUrlWithDomain:domainAndTime dnsId:dnsId dnsKey:self.dnsKey ipType:self.ipType encryptType:_encryptType];
     
     if (httpDnsUrl) {

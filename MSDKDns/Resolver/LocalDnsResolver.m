@@ -107,7 +107,14 @@
             switch (res->ai_family){
                 case AF_INET6:
                     s6 = (struct sockaddr_in6 *)res->ai_addr;
-                    if (inet_ntop(res->ai_family, (void *)&(s6->sin6_addr), buf, sizeof(buf)) == NULL) {
+                    
+                    // Filter out link-local (fe80::) and loopback (::1) addresses
+                    if (IN6_IS_ADDR_LINKLOCAL(&s6->sin6_addr) || IN6_IS_ADDR_LOOPBACK(&s6->sin6_addr)) {
+                        MSDKDNSLOG(@"Filtered out link-local or loopback IPv6 address");
+                        continue;
+                    }
+                    
+                    if (inet_ntop(AF_INET6, (void *)&(s6->sin6_addr), buf, sizeof(buf)) == NULL) {
                         MSDKDNSLOG(@"inet_ntop failed for v6!\n");
                     } else {
                         //surprisingly every address is in double, let's add this test
@@ -119,7 +126,7 @@
                     
                 case AF_INET:
                     s4 = (struct sockaddr_in *)res->ai_addr;
-                    if (inet_ntop(res->ai_family, (void *)&(s4->sin_addr), buf, sizeof(buf)) == NULL) {
+                    if (inet_ntop(AF_INET, (void *)&(s4->sin_addr), buf, sizeof(buf)) == NULL) {
                         MSDKDNSLOG(@"inet_ntop failed for v4!\n");
                     } else {
                         //surprisingly every address is in double, let's add this test
@@ -145,11 +152,21 @@
         NSString* ipv6 = @"0";
         for (int i = 0; i < [result count]; i++) {
             if (result[i] && [self isIPValid:result[i]]) {
-                NSString *regex = @"([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::ffff(:0{1,4}){0,1}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
+                NSString *ipStr = result[i];
+                
+                // Additional safety check: filter out link-local (fe80:) and loopback (::1) addresses
+                // This is a backup filter in case they somehow got through earlier checks
+                if ([ipStr hasPrefix:@"fe80:"] || [ipStr hasPrefix:@"FE80:"] || 
+                    [ipStr isEqualToString:@"::1"]) {
+                    MSDKDNSLOG(@"Filtered out invalid IPv6 address in getIpResult: %@", ipStr);
+                    continue;
+                }
+                
+                NSString *regex = @"([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|::ffff(:0{1,4}){0,1}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-                BOOL isValid = [predicate evaluateWithObject:result[i]];
+                BOOL isValid = [predicate evaluateWithObject:ipStr];
                 if (isValid) {
-                    ipv6 = result[i];
+                    ipv6 = ipStr;
                     break;
                 }
             }
