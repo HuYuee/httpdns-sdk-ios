@@ -17,22 +17,22 @@
 
 @interface MSDKDnsService () <MSDKDnsResolverDelegate>
 
-@property (strong, nonatomic) NSArray * toCheckDomains;
-@property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_A;
-@property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_4A;
-@property (strong, nonatomic) HttpsDnsResolver * httpDnsResolver_BOTH;
-@property (strong, nonatomic) LocalDnsResolver * localDnsResolver;
+@property (strong, atomic) NSArray * toCheckDomains;
+@property (strong, atomic) HttpsDnsResolver * httpDnsResolver_A;
+@property (strong, atomic) HttpsDnsResolver * httpDnsResolver_4A;
+@property (strong, atomic) HttpsDnsResolver * httpDnsResolver_BOTH;
+@property (strong, atomic) LocalDnsResolver * localDnsResolver;
 @property (nonatomic, strong) void (^ completionHandler)();
 @property (atomic, assign) BOOL isCallBack;
 @property (nonatomic) msdkdns::MSDKDNS_TLocalIPStack netStack;
 @property (nonatomic, assign) int httpdnsFailCount;
 @property (nonatomic, assign) float timeOut;
 @property (nonatomic, assign) int dnsId;
-@property (nonatomic, strong) NSString* dnsServer;
-@property (nonatomic, strong) NSString* dnsRouter;
-@property (nonatomic, strong) NSString* dnsKey;
-@property (nonatomic, strong) NSString* origin;
-@property (nonatomic, strong) NSString* dnsToken;
+@property (atomic, strong) NSString* dnsServer;
+@property (atomic, strong) NSString* dnsRouter;
+@property (atomic, strong) NSString* dnsKey;
+@property (atomic, strong) NSString* origin;
+@property (atomic, strong) NSString* dnsToken;
 @property (nonatomic, strong) NSDate * startTime;
 @property (nonatomic, assign) NSUInteger encryptType;
 @property (nonatomic, assign) BOOL httpOnly;
