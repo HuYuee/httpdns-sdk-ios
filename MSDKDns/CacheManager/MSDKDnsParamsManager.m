@@ -38,6 +38,7 @@
 @property (assign, nonatomic, readwrite) BOOL persistCacheIPEnabled;
 @property (assign, nonatomic, readwrite) BOOL enableDetectHostServer;
 @property (assign, nonatomic, readwrite) NSInteger timeOffsetInSeconds;
+@property (assign, nonatomic, readwrite) uint32_t sceneFlags;
 
 @end
 
@@ -65,6 +66,7 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
         _expiredIPEnabled = NO;
         _persistCacheIPEnabled = NO;
         _enableDetectHostServer = NO;
+        _sceneFlags = 0;
     }
     return self;
 }
@@ -193,6 +195,18 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
     });
 }
 
+- (void)msdkDnsUpdateSceneUseLdns:(BOOL)useLdns {
+    dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
+        uint32_t flags = self.sceneFlags;
+        if (useLdns) {
+            flags |= MSDKDNS_SCENE_USE_LDNS;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_SCENE_USE_LDNS);
+        }
+        self.sceneFlags = flags;
+    });
+}
+
 #pragma mark - getter
 
 - (BOOL)msdkDnsGetHttpOnly {
@@ -296,6 +310,10 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
 
 - (NSInteger)msdkDnsGetOffsetWithBaseTime {
     return _timeOffsetInSeconds;
+}
+
+- (uint32_t)msdkDnsGetSceneFlags {
+    return _sceneFlags;
 }
  
 @end

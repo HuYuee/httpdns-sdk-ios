@@ -187,6 +187,8 @@ static MSDKDnsManager * gSharedInstance = nil;
     NSDictionary * result = verbose?
     [self fullResultDictionary:domains fromCache:cacheDomainDict] :
     [self resultDictionary:domains fromCache:cacheDomainDict];
+    BOOL useLdns = [self domainsResultUseOnlyLocalDNS:domains fromCache:cacheDomainDict];
+    [[MSDKDnsParamsManager shareInstance] msdkDnsUpdateSceneUseLdns:useLdns];
     return result;
 }
 
@@ -251,6 +253,8 @@ static MSDKDnsManager * gSharedInstance = nil;
     [self resultDictionaryEnableExpired:domains fromCache:cacheDomainDict toEmpty:toEmptyDomains];
     
     [self excuteOptimismReport:domains result:result verbose:verbose];
+    BOOL useLdns = [self domainsResultUseOnlyLocalDNS:domains fromCache:cacheDomainDict];
+    [[MSDKDnsParamsManager shareInstance] msdkDnsUpdateSceneUseLdns:useLdns];
     
     return result;
 }
@@ -356,6 +360,8 @@ static MSDKDnsManager * gSharedInstance = nil;
                 NSDictionary * result = verbose ?
                 [strongSelf fullResultDictionary:domains fromCache:self.domainDict] :
                 [strongSelf resultDictionary:domains fromCache:self.domainDict];
+                BOOL useLdns = [strongSelf domainsResultUseOnlyLocalDNS:domains fromCache:self.domainDict];
+                [[MSDKDnsParamsManager shareInstance] msdkDnsUpdateSceneUseLdns:useLdns];
                 if (handler) {
                     handler(result);
                 }
@@ -423,6 +429,49 @@ static MSDKDnsManager * gSharedInstance = nil;
 }
 
 #pragma mark - dns resolve
+
+- (BOOL)domainsResultUseOnlyLocalDNS:(NSArray *)domains fromCache:(NSDictionary *)domainDict {
+    BOOL httpOnly = [[MSDKDnsParamsManager shareInstance] msdkDnsGetHttpOnly];
+    if (httpOnly || !domains || [domains count] == 0 || !domainDict) {
+        return NO;
+    }
+    for (NSString *domain in domains) {
+        if (![domain isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        NSDictionary *cacheDict = domainDict[domain];
+        if (!cacheDict || ![cacheDict isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        NSDictionary *localResult = cacheDict[kMSDKLocalDnsCache];
+        BOOL hasLocal = NO;
+        if (localResult && [localResult isKindOfClass:[NSDictionary class]]) {
+            NSArray *ipsArray = localResult[kIP];
+            if (ipsArray && [ipsArray isKindOfClass:[NSArray class]] && [ipsArray count] > 0) {
+                hasLocal = YES;
+            }
+        }
+        NSDictionary *hresultDict_A = cacheDict[kMSDKHttpDnsCache_A];
+        NSDictionary *hresultDict_4A = cacheDict[kMSDKHttpDnsCache_4A];
+        BOOL hasHttp = NO;
+        if (hresultDict_A && [hresultDict_A isKindOfClass:[NSDictionary class]]) {
+            NSArray *ipsArray = hresultDict_A[kIP];
+            if (ipsArray && [ipsArray isKindOfClass:[NSArray class]] && [ipsArray count] > 0) {
+                hasHttp = YES;
+            }
+        }
+        if (!hasHttp && hresultDict_4A && [hresultDict_4A isKindOfClass:[NSDictionary class]]) {
+            NSArray *ipsArray = hresultDict_4A[kIP];
+            if (ipsArray && [ipsArray isKindOfClass:[NSArray class]] && [ipsArray count] > 0) {
+                hasHttp = YES;
+            }
+        }
+        if (hasLocal && !hasHttp) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
 - (NSArray *)resultArray: (NSString *)domain fromCache:(NSDictionary *)domainDict {
     NSMutableArray * ipResult = [@[@"0", @"0"] mutableCopy];

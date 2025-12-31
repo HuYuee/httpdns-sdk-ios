@@ -62,6 +62,9 @@
 #define kMSDKDns_DNS_A_IP @"dns_ips"              // 域名解析结果v4 IP，多个ip以“,”拼接
 #define kMSDKDns_DNS_4A_IP @"dns_4a_ips"          // 域名解析结果v6 IP，多个ip以“,”拼接
 
+// 场景位标记：bit0 表示上一次解析结果仅使用 LocalDNS
+#define MSDKDNS_SCENE_USE_LDNS (1 << 0)
+
 /*** 域名解析错误码*/
 #define MSDKDns_Fail @"-1"    // 失败
 #define MSDKDns_Success @"0"  // 成功

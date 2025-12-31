@@ -33,6 +33,8 @@
 - (void)msdkDnsSetExpiredIPEnabled: (BOOL)enable;
 - (void)msdkDnsSetPersistCacheIPEnabled: (BOOL)enable;
 - (void)msdkDnsSetOffsetWithBaseTime:(NSInteger)time;
+// 更新场景位：是否使用了 LocalDNS 结果
+- (void)msdkDnsUpdateSceneUseLdns:(BOOL)useLdns;
 
 - (NSString *) msdkDnsGetMDnsIp;
 - (NSString *) msdkDnsGetMOpenId;
@@ -58,5 +60,7 @@
 - (BOOL)msdkDnsGetExpiredIPEnabled;
 - (BOOL)msdkDnsGetPersistCacheIPEnabled;
 - (NSInteger)msdkDnsGetOffsetWithBaseTime;
+// 获取当前场景位
+- (uint32_t)msdkDnsGetSceneFlags;
 
 @end
