@@ -207,6 +207,18 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
     });
 }
 
+- (void)msdkDnsUpdateSceneIsRetry:(BOOL)isRetry {
+    dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
+        uint32_t flags = self.sceneFlags;
+        if (isRetry) {
+            flags |= MSDKDNS_SCENE_HTTPDNS_RETRY;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_SCENE_HTTPDNS_RETRY);
+        }
+        self.sceneFlags = flags;
+    });
+}
+
 #pragma mark - getter
 
 - (BOOL)msdkDnsGetHttpOnly {

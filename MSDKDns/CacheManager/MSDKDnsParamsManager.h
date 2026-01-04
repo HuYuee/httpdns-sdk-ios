@@ -35,6 +35,8 @@
 - (void)msdkDnsSetOffsetWithBaseTime:(NSInteger)time;
 // 更新场景位：是否使用了 LocalDNS 结果
 - (void)msdkDnsUpdateSceneUseLdns:(BOOL)useLdns;
+// 更新场景位：是否处于 HttpDNS 重试阶段
+- (void)msdkDnsUpdateSceneIsRetry:(BOOL)isRetry;
 
 - (NSString *) msdkDnsGetMDnsIp;
 - (NSString *) msdkDnsGetMOpenId;

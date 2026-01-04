@@ -64,6 +64,8 @@
 
 // 场景位标记：bit0 表示上一次解析结果仅使用 LocalDNS
 #define MSDKDNS_SCENE_USE_LDNS (1 << 0)
+// 场景位标记：bit1 表示当前会话处于 HttpDNS 重试阶段
+#define MSDKDNS_SCENE_HTTPDNS_RETRY (1 << 1)
 
 /*** 域名解析错误码*/
 #define MSDKDns_Fail @"-1"    // 失败
