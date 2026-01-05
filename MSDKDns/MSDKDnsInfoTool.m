@@ -483,6 +483,9 @@ char MSDKDnsHexCharToChar(char high, char low) {
     if (sceneFlags != 0) {
         urlStr = [urlStr stringByAppendingFormat:@"&scene=%u", sceneFlags];
     }
+    // 每次请求都携带高级功能标记参数 feature
+    uint32_t featureFlags = [[MSDKDnsParamsManager shareInstance] msdkDnsGetFeatureFlags];
+    urlStr = [urlStr stringByAppendingFormat:@"&feature=%u", featureFlags];
     if (ipType == HttpDnsTypeIPv6) {
         urlStr = [urlStr stringByAppendingString:@"&type=aaaa"];
     }else if (ipType == HttpDnsTypeDual) {

@@ -64,5 +64,7 @@
 - (NSInteger)msdkDnsGetOffsetWithBaseTime;
 // 获取当前场景位
 - (uint32_t)msdkDnsGetSceneFlags;
+// 获取当前高级功能标记位
+- (uint32_t)msdkDnsGetFeatureFlags;
 
 @end
