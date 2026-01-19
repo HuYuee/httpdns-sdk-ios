@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -130,6 +130,20 @@
 		5FD192DE2BCE58540044F1CD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5FD192DC2BCE58540044F1CD /* PrivacyInfo.xcprivacy */; };
 		5FD192DF2BCE58540044F1CD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5FD192DC2BCE58540044F1CD /* PrivacyInfo.xcprivacy */; };
 		5FD192E02BCE58540044F1CD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5FD192DC2BCE58540044F1CD /* PrivacyInfo.xcprivacy */; };
+		5FEB8D4E2F18C92F00019442 /* MSDKDnsParamsManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D482F18C92F00019442 /* MSDKDnsParamsManagerTests.m */; };
+		5FEB8D4F2F18C92F00019442 /* MSDKDnsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D492F18C92F00019442 /* MSDKDnsTests.m */; };
+		5FEB8D502F18C92F00019442 /* MSDKDnsInfoToolTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4A2F18C92F00019442 /* MSDKDnsInfoToolTests.m */; };
+		5FEB8D512F18C92F00019442 /* MSDKDnsManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4B2F18C92F00019442 /* MSDKDnsManagerTests.m */; };
+		5FEB8D522F18C92F00019442 /* AttaReportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4C2F18C92F00019442 /* AttaReportTests.m */; };
+		5FEB8D532F18C92F00019442 /* HttpsDnsResolverTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4D2F18C92F00019442 /* HttpsDnsResolverTests.m */; };
+		5FEB8D692F18CE5000019442 /* MSDKDns_C11.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D682F18CE5000019442 /* MSDKDns_C11.framework */; platformFilter = ios; };
+		5FEB8D6D2F18D04600019442 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D6C2F18D04600019442 /* libsqlite3.tbd */; };
+		5FEB8D6F2F18D09600019442 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D6E2F18D09600019442 /* CFNetwork.framework */; };
+		5FEB8D712F18D10000019442 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D702F18D10000019442 /* SystemConfiguration.framework */; };
+		5FEB8D732F18D10800019442 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D722F18D10800019442 /* CoreTelephony.framework */; };
+		5FEB8D752F18D10E00019442 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D742F18D10E00019442 /* UIKit.framework */; };
+		5FEB8D772F18D11600019442 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D762F18D11600019442 /* Security.framework */; };
+		5FEB8D782F18D12900019442 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D6A2F18D03000019442 /* libc++.tbd */; };
 		C8EBE7D3256664C500BEFEEC /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = C8EBE7D1256664C400BEFEEC /* aes.h */; };
 		C8EBE7D4256664C500BEFEEC /* aes.mm in Sources */ = {isa = PBXBuildFile; fileRef = C8EBE7D2256664C500BEFEEC /* aes.mm */; };
 		C8EBE7F4256668A300BEFEEC /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C8EBE7DA2566675800BEFEEC /* libc++.tbd */; };
@@ -164,6 +178,16 @@
 		DD5935561DDC56B200BF9348 /* HttpsDnsResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = DD5935541DDC56B200BF9348 /* HttpsDnsResolver.m */; };
 		DD5935581DDC56B200BF9348 /* HttpsDnsResolver.h in Headers */ = {isa = PBXBuildFile; fileRef = DD5935551DDC56B200BF9348 /* HttpsDnsResolver.h */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5FEB8D5E2F18CD4200019442 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 44224FB81B312DD6003497C4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD43F493231CC36D0000A89F;
+			remoteInfo = MSDKDns_C11;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		44224FC01B312DD6003497C4 /* MSDKDns.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MSDKDns.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -205,6 +229,21 @@
 		5F5DAF4C28A525E300BF5B79 /* MSDKDnsTCPSpeedTester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsTCPSpeedTester.m; sourceTree = "<group>"; };
 		5F5DAF4D28A525E300BF5B79 /* MSDKDnsSpeedTester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSDKDnsSpeedTester.h; sourceTree = "<group>"; };
 		5FD192DC2BCE58540044F1CD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = MSDKDns/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		5FEB8D412F18C73D00019442 /* MSDKDnsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MSDKDnsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FEB8D482F18C92F00019442 /* MSDKDnsParamsManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsParamsManagerTests.m; sourceTree = "<group>"; };
+		5FEB8D492F18C92F00019442 /* MSDKDnsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsTests.m; sourceTree = "<group>"; };
+		5FEB8D4A2F18C92F00019442 /* MSDKDnsInfoToolTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsInfoToolTests.m; sourceTree = "<group>"; };
+		5FEB8D4B2F18C92F00019442 /* MSDKDnsManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsManagerTests.m; sourceTree = "<group>"; };
+		5FEB8D4C2F18C92F00019442 /* AttaReportTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttaReportTests.m; sourceTree = "<group>"; };
+		5FEB8D4D2F18C92F00019442 /* HttpsDnsResolverTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpsDnsResolverTests.m; sourceTree = "<group>"; };
+		5FEB8D682F18CE5000019442 /* MSDKDns_C11.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MSDKDns_C11.framework; path = ../MSDKDns_C11/MSDKDns_C11.framework; sourceTree = "<group>"; };
+		5FEB8D6A2F18D03000019442 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
+		5FEB8D6C2F18D04600019442 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/lib/libsqlite3.tbd; sourceTree = DEVELOPER_DIR; };
+		5FEB8D6E2F18D09600019442 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		5FEB8D702F18D10000019442 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		5FEB8D722F18D10800019442 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
+		5FEB8D742F18D10E00019442 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/iOSSupport/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		5FEB8D762F18D11600019442 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		C8EBE7D1256664C400BEFEEC /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		C8EBE7D2256664C500BEFEEC /* aes.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = aes.mm; sourceTree = "<group>"; };
 		C8EBE7DA2566675800BEFEEC /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
@@ -241,6 +280,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5FEB8D3E2F18C73D00019442 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5FEB8D782F18D12900019442 /* libc++.tbd in Frameworks */,
+				5FEB8D772F18D11600019442 /* Security.framework in Frameworks */,
+				5FEB8D752F18D10E00019442 /* UIKit.framework in Frameworks */,
+				5FEB8D732F18D10800019442 /* CoreTelephony.framework in Frameworks */,
+				5FEB8D712F18D10000019442 /* SystemConfiguration.framework in Frameworks */,
+				5FEB8D6F2F18D09600019442 /* CFNetwork.framework in Frameworks */,
+				5FEB8D6D2F18D04600019442 /* libsqlite3.tbd in Frameworks */,
+				5FEB8D692F18CE5000019442 /* MSDKDns_C11.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DD43F4A3231CC36D0000A89F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -258,6 +312,7 @@
 			children = (
 				5FD192DC2BCE58540044F1CD /* PrivacyInfo.xcprivacy */,
 				44224FC21B312DD6003497C4 /* MSDKDns */,
+				5FEB8D422F18C73D00019442 /* MSDKDnsTests */,
 				44224FC11B312DD6003497C4 /* Products */,
 				C8EBE7D92566675800BEFEEC /* Frameworks */,
 			);
@@ -270,6 +325,7 @@
 				DD43F4B9231CC36D0000A89F /* MSDKDns_C11.framework */,
 				5F0943A5292B82D50004374B /* MSDKDns_C11_intl.framework */,
 				5F0943D8292B96CC0004374B /* MSDKDns_intl.framework */,
+				5FEB8D412F18C73D00019442 /* MSDKDnsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -376,9 +432,30 @@
 			path = DB;
 			sourceTree = "<group>";
 		};
+		5FEB8D422F18C73D00019442 /* MSDKDnsTests */ = {
+			isa = PBXGroup;
+			children = (
+				5FEB8D4C2F18C92F00019442 /* AttaReportTests.m */,
+				5FEB8D4D2F18C92F00019442 /* HttpsDnsResolverTests.m */,
+				5FEB8D4A2F18C92F00019442 /* MSDKDnsInfoToolTests.m */,
+				5FEB8D4B2F18C92F00019442 /* MSDKDnsManagerTests.m */,
+				5FEB8D482F18C92F00019442 /* MSDKDnsParamsManagerTests.m */,
+				5FEB8D492F18C92F00019442 /* MSDKDnsTests.m */,
+			);
+			path = MSDKDnsTests;
+			sourceTree = "<group>";
+		};
 		C8EBE7D92566675800BEFEEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5FEB8D762F18D11600019442 /* Security.framework */,
+				5FEB8D742F18D10E00019442 /* UIKit.framework */,
+				5FEB8D722F18D10800019442 /* CoreTelephony.framework */,
+				5FEB8D702F18D10000019442 /* SystemConfiguration.framework */,
+				5FEB8D6E2F18D09600019442 /* CFNetwork.framework */,
+				5FEB8D6C2F18D04600019442 /* libsqlite3.tbd */,
+				5FEB8D6A2F18D03000019442 /* libc++.tbd */,
+				5FEB8D682F18CE5000019442 /* MSDKDns_C11.framework */,
 				5F1332E828FFEC4600A22D2A /* libsqlite3.tbd */,
 				C8EBE7DA2566675800BEFEEC /* libc++.tbd */,
 			);
@@ -558,6 +635,24 @@
 			productReference = 5F0943D8292B96CC0004374B /* MSDKDns_intl.framework */;
 			productType = "com.apple.product-type.bundle";
 		};
+		5FEB8D402F18C73D00019442 /* MSDKDnsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5FEB8D472F18C73D00019442 /* Build configuration list for PBXNativeTarget "MSDKDnsTests" */;
+			buildPhases = (
+				5FEB8D3D2F18C73D00019442 /* Sources */,
+				5FEB8D3E2F18C73D00019442 /* Frameworks */,
+				5FEB8D3F2F18C73D00019442 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5FEB8D5F2F18CD4200019442 /* PBXTargetDependency */,
+			);
+			name = MSDKDnsTests;
+			productName = MSDKDnsTests;
+			productReference = 5FEB8D412F18C73D00019442 /* MSDKDnsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DD43F493231CC36D0000A89F /* MSDKDns_C11 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DD43F4B6231CC36D0000A89F /* Build configuration list for PBXNativeTarget "MSDKDns_C11" */;
@@ -598,6 +693,11 @@
 					5F0943A7292B96CC0004374B = {
 						DevelopmentTeam = 4PK94A7P3R;
 					};
+					5FEB8D402F18C73D00019442 = {
+						CreatedOnToolsVersion = 15.4;
+						DevelopmentTeam = 4PK94A7P3R;
+						ProvisioningStyle = Automatic;
+					};
 					DD43F493231CC36D0000A89F = {
 						DevelopmentTeam = 4PK94A7P3R;
 					};
@@ -620,6 +720,7 @@
 				5F0943A7292B96CC0004374B /* MSDKDns_intl */,
 				DD43F493231CC36D0000A89F /* MSDKDns_C11 */,
 				5F094374292B82D50004374B /* MSDKDns_C11_intl */,
+				5FEB8D402F18C73D00019442 /* MSDKDnsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -646,6 +747,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5FD192DE2BCE58540044F1CD /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FEB8D3F2F18C73D00019442 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -893,6 +1001,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5FEB8D3D2F18C73D00019442 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5FEB8D4E2F18C92F00019442 /* MSDKDnsParamsManagerTests.m in Sources */,
+				5FEB8D512F18C92F00019442 /* MSDKDnsManagerTests.m in Sources */,
+				5FEB8D522F18C92F00019442 /* AttaReportTests.m in Sources */,
+				5FEB8D532F18C92F00019442 /* HttpsDnsResolverTests.m in Sources */,
+				5FEB8D502F18C92F00019442 /* MSDKDnsInfoToolTests.m in Sources */,
+				5FEB8D4F2F18C92F00019442 /* MSDKDnsTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DD43F495231CC36D0000A89F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -918,6 +1039,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5FEB8D5F2F18CD4200019442 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD43F493231CC36D0000A89F /* MSDKDns_C11 */;
+			targetProxy = 5FEB8D5E2F18CD4200019442 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		44224FC51B312DD6003497C4 /* Debug */ = {
@@ -1057,7 +1186,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
@@ -1104,7 +1233,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1147,7 +1276,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
@@ -1189,7 +1318,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1238,7 +1367,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
@@ -1286,7 +1415,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1299,6 +1428,68 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		5FEB8D452F18C73D00019442 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4PK94A7P3R;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/MSDKDns";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.eric.MSDKDnsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5FEB8D462F18C73D00019442 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4PK94A7P3R;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/MSDKDns";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.eric.MSDKDnsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -1317,6 +1508,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/..";
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				INFOPLIST_FILE = MSDKDns/Info.plist;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
@@ -1324,7 +1516,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
@@ -1357,6 +1549,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/..";
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				INFOPLIST_FILE = MSDKDns/Info.plist;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
@@ -1364,7 +1557,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = mh_object;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1_beta;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1415,6 +1608,15 @@
 			buildConfigurations = (
 				5F0943D6292B96CC0004374B /* Debug */,
 				5F0943D7292B96CC0004374B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5FEB8D472F18C73D00019442 /* Build configuration list for PBXNativeTarget "MSDKDnsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5FEB8D452F18C73D00019442 /* Debug */,
+				5FEB8D462F18C73D00019442 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
