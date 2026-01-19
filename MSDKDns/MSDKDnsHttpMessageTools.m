@@ -292,7 +292,7 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
  */
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode {
     if (eventCode == NSStreamEventHasBytesAvailable) {
-        CFReadStreamRef readStream = (__bridge_retained CFReadStreamRef) aStream;
+        CFReadStreamRef readStream = (__bridge CFReadStreamRef)aStream;
         CFHTTPMessageRef message = (CFHTTPMessageRef) CFReadStreamCopyProperty(readStream, kCFStreamPropertyHTTPResponseHeader);
         if (CFHTTPMessageIsHeaderComplete(message)) {
             // 以防response的header信息不完整
@@ -391,7 +391,6 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
                     [self.client URLProtocol:self didFailWithError:error];
                 }
             }
-            CFRelease((CFReadStreamRef)inputstream);
             CFRelease(message);
         }
     } else if (eventCode == NSStreamEventErrorOccurred) {
@@ -434,6 +433,15 @@ static NSString *const kAnchorAlreadyAdded = @"AnchorAlreadyAdded";
     _curRequest.URL = [self getIpAndReplace:[url absoluteString]];
     [_curRequest setValue:url.host forHTTPHeaderField:@"host"];
     [self startRequest];
+}
+
+- (void)dealloc {
+    if (_inputStream) {
+        [_inputStream removeFromRunLoop:_curRunLoop forMode:NSRunLoopCommonModes];
+        _inputStream.delegate = nil;
+        [_inputStream close];
+        _inputStream = nil;
+    }
 }
 
 @end
