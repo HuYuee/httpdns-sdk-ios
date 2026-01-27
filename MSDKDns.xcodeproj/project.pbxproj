@@ -136,7 +136,33 @@
 		5FEB8D512F18C92F00019442 /* MSDKDnsManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4B2F18C92F00019442 /* MSDKDnsManagerTests.m */; };
 		5FEB8D522F18C92F00019442 /* AttaReportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4C2F18C92F00019442 /* AttaReportTests.m */; };
 		5FEB8D532F18C92F00019442 /* HttpsDnsResolverTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D4D2F18C92F00019442 /* HttpsDnsResolverTests.m */; };
-		5FEB8D692F18CE5000019442 /* MSDKDns_C11.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D682F18CE5000019442 /* MSDKDns_C11.framework */; platformFilter = ios; };
+		5FEB8D542F18C92F00019443 /* MSDKDnsLogTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D542F18C92F00019444 /* MSDKDnsLogTests.m */; };
+		5FEB8D552F18C92F00019445 /* MSDKDnsDBTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D552F18C92F00019446 /* MSDKDnsDBTests.m */; };
+		5FEB8D562F18C92F00019447 /* MSDKDnsReachabilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D562F18C92F00019448 /* MSDKDnsReachabilityTests.m */; };
+		5FEB8D572F18C92F00019449 /* MSDKDnsTCPSpeedTesterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D572F18C92F0001944A /* MSDKDnsTCPSpeedTesterTests.m */; };
+		5FEB8D582F18C92F0001944B /* LocalDnsResolverTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D582F18C92F0001944C /* LocalDnsResolverTests.m */; };
+		5FEB8D5C2F18C92F00019450 /* MSDKDnsHttpMessageToolsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D592F18C92F0001944D /* MSDKDnsHttpMessageToolsTests.m */; };
+		5FEB8D5D2F18C92F00019451 /* MSDKDnsNetworkManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D5A2F18C92F0001944E /* MSDKDnsNetworkManagerTests.m */; };
+		5FEB8D5E2F18C92F00019452 /* LocalIPStackTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D5B2F18C92F0001944F /* LocalIPStackTests.mm */; };
+		5FEB8D5F2F18C92F00019453 /* MSDKDnsMainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D5F2F18C92F00019454 /* MSDKDnsMainTests.m */; };
+		5FEB8D602F18C92F00019455 /* MSDKDnsServiceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB8D602F18C92F00019456 /* MSDKDnsServiceTests.m */; };
+		5FEB8D7A2F18E00000019442 /* MSDKDnsParamsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 502422EB2140073F0094403C /* MSDKDnsParamsManager.m */; };
+		5FEB8D7B2F18E00000019442 /* MSDKDnsInfoTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 44BFE2361CA58C3A00D7FE87 /* MSDKDnsInfoTool.m */; };
+		5FEB8D7C2F18E00000019442 /* HttpsDnsResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = DD5935541DDC56B200BF9348 /* HttpsDnsResolver.m */; };
+		5FEB8D7D2F18E00000019442 /* MSDKDnsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 445B36621CBD095C00BD4345 /* MSDKDnsManager.m */; };
+		5FEB8D7E2F18E00000019442 /* MSDKDnsService.m in Sources */ = {isa = PBXBuildFile; fileRef = 444044F81B3133A30010F5D5 /* MSDKDnsService.m */; };
+		5FEB8D7F2F18E00000019442 /* MSDKDnsTCPSpeedTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F5DAF4C28A525E300BF5B79 /* MSDKDnsTCPSpeedTester.m */; };
+		5FEB8D802F18E00000019442 /* aes.mm in Sources */ = {isa = PBXBuildFile; fileRef = C8EBE7D2256664C500BEFEEC /* aes.mm */; };
+		5FEB8D812F18E00000019442 /* msdkdns_local_ip_stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 501001EC215E1F1D003288A5 /* msdkdns_local_ip_stack.cpp */; };
+		5FEB8D822F18E00000019442 /* MSDKDnsReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 44BFE2471CA59D9800D7FE87 /* MSDKDnsReachability.m */; };
+		5FEB8D832F18E00000019442 /* MSDKDnsNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 445B36681CBD1D4700BD4345 /* MSDKDnsNetworkManager.m */; };
+		5FEB8D842F18E00000019442 /* MSDKDnsLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4497F8B71B4628F000D51391 /* MSDKDnsLog.m */; };
+		5FEB8D852F18E00000019442 /* MSDKDnsHttpMessageTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 504F54391ECAF89F001BD7A9 /* MSDKDnsHttpMessageTools.m */; };
+		5FEB8D862F18E00000019442 /* MSDKDnsDB.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F1E287D28B72A7D00AD0D9F /* MSDKDnsDB.m */; };
+		5FEB8D872F18E00000019442 /* MSDKDnsResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 448EE4E11B329899004A2131 /* MSDKDnsResolver.m */; };
+		5FEB8D882F18E00000019442 /* AttaReport.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EA82212760890B005F68A9 /* AttaReport.m */; };
+		5FEB8D892F18E00000019442 /* MSDKDns.m in Sources */ = {isa = PBXBuildFile; fileRef = 4455D15D1B3A5B90005BF126 /* MSDKDns.m */; };
+		5FEB8D8A2F18E00000019442 /* LocalDnsResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 448EE4DF1B329899004A2131 /* LocalDnsResolver.m */; };
 		5FEB8D6D2F18D04600019442 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D6C2F18D04600019442 /* libsqlite3.tbd */; };
 		5FEB8D6F2F18D09600019442 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D6E2F18D09600019442 /* CFNetwork.framework */; };
 		5FEB8D712F18D10000019442 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEB8D702F18D10000019442 /* SystemConfiguration.framework */; };
@@ -236,6 +262,16 @@
 		5FEB8D4B2F18C92F00019442 /* MSDKDnsManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsManagerTests.m; sourceTree = "<group>"; };
 		5FEB8D4C2F18C92F00019442 /* AttaReportTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttaReportTests.m; sourceTree = "<group>"; };
 		5FEB8D4D2F18C92F00019442 /* HttpsDnsResolverTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpsDnsResolverTests.m; sourceTree = "<group>"; };
+		5FEB8D542F18C92F00019444 /* MSDKDnsLogTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsLogTests.m; sourceTree = "<group>"; };
+		5FEB8D552F18C92F00019446 /* MSDKDnsDBTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsDBTests.m; sourceTree = "<group>"; };
+		5FEB8D562F18C92F00019448 /* MSDKDnsReachabilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsReachabilityTests.m; sourceTree = "<group>"; };
+		5FEB8D572F18C92F0001944A /* MSDKDnsTCPSpeedTesterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsTCPSpeedTesterTests.m; sourceTree = "<group>"; };
+		5FEB8D582F18C92F0001944C /* LocalDnsResolverTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalDnsResolverTests.m; sourceTree = "<group>"; };
+		5FEB8D592F18C92F0001944D /* MSDKDnsHttpMessageToolsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsHttpMessageToolsTests.m; sourceTree = "<group>"; };
+		5FEB8D5A2F18C92F0001944E /* MSDKDnsNetworkManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsNetworkManagerTests.m; sourceTree = "<group>"; };
+		5FEB8D5B2F18C92F0001944F /* LocalIPStackTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LocalIPStackTests.mm; sourceTree = "<group>"; };
+		5FEB8D5F2F18C92F00019454 /* MSDKDnsMainTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsMainTests.m; sourceTree = "<group>"; };
+		5FEB8D602F18C92F00019456 /* MSDKDnsServiceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSDKDnsServiceTests.m; sourceTree = "<group>"; };
 		5FEB8D682F18CE5000019442 /* MSDKDns_C11.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MSDKDns_C11.framework; path = ../MSDKDns_C11/MSDKDns_C11.framework; sourceTree = "<group>"; };
 		5FEB8D6A2F18D03000019442 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
 		5FEB8D6C2F18D04600019442 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/lib/libsqlite3.tbd; sourceTree = DEVELOPER_DIR; };
@@ -291,7 +327,6 @@
 				5FEB8D712F18D10000019442 /* SystemConfiguration.framework in Frameworks */,
 				5FEB8D6F2F18D09600019442 /* CFNetwork.framework in Frameworks */,
 				5FEB8D6D2F18D04600019442 /* libsqlite3.tbd in Frameworks */,
-				5FEB8D692F18CE5000019442 /* MSDKDns_C11.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,9 +472,19 @@
 			children = (
 				5FEB8D4C2F18C92F00019442 /* AttaReportTests.m */,
 				5FEB8D4D2F18C92F00019442 /* HttpsDnsResolverTests.m */,
+				5FEB8D582F18C92F0001944C /* LocalDnsResolverTests.m */,
+				5FEB8D5B2F18C92F0001944F /* LocalIPStackTests.mm */,
+				5FEB8D552F18C92F00019446 /* MSDKDnsDBTests.m */,
+				5FEB8D592F18C92F0001944D /* MSDKDnsHttpMessageToolsTests.m */,
 				5FEB8D4A2F18C92F00019442 /* MSDKDnsInfoToolTests.m */,
+				5FEB8D542F18C92F00019444 /* MSDKDnsLogTests.m */,
+				5FEB8D5F2F18C92F00019454 /* MSDKDnsMainTests.m */,
 				5FEB8D4B2F18C92F00019442 /* MSDKDnsManagerTests.m */,
+				5FEB8D5A2F18C92F0001944E /* MSDKDnsNetworkManagerTests.m */,
 				5FEB8D482F18C92F00019442 /* MSDKDnsParamsManagerTests.m */,
+				5FEB8D562F18C92F00019448 /* MSDKDnsReachabilityTests.m */,
+				5FEB8D602F18C92F00019456 /* MSDKDnsServiceTests.m */,
+				5FEB8D572F18C92F0001944A /* MSDKDnsTCPSpeedTesterTests.m */,
 				5FEB8D492F18C92F00019442 /* MSDKDnsTests.m */,
 			);
 			path = MSDKDnsTests;
@@ -645,8 +690,7 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-				5FEB8D5F2F18CD4200019442 /* PBXTargetDependency */,
+		dependencies = (
 			);
 			name = MSDKDnsTests;
 			productName = MSDKDnsTests;
@@ -1005,12 +1049,39 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FEB8D7A2F18E00000019442 /* MSDKDnsParamsManager.m in Sources */,
+				5FEB8D7B2F18E00000019442 /* MSDKDnsInfoTool.m in Sources */,
+				5FEB8D7C2F18E00000019442 /* HttpsDnsResolver.m in Sources */,
+				5FEB8D7D2F18E00000019442 /* MSDKDnsManager.m in Sources */,
+				5FEB8D7E2F18E00000019442 /* MSDKDnsService.m in Sources */,
+				5FEB8D7F2F18E00000019442 /* MSDKDnsTCPSpeedTester.m in Sources */,
+				5FEB8D802F18E00000019442 /* aes.mm in Sources */,
+				5FEB8D812F18E00000019442 /* msdkdns_local_ip_stack.cpp in Sources */,
+				5FEB8D822F18E00000019442 /* MSDKDnsReachability.m in Sources */,
+				5FEB8D832F18E00000019442 /* MSDKDnsNetworkManager.m in Sources */,
+				5FEB8D842F18E00000019442 /* MSDKDnsLog.m in Sources */,
+				5FEB8D852F18E00000019442 /* MSDKDnsHttpMessageTools.m in Sources */,
+				5FEB8D862F18E00000019442 /* MSDKDnsDB.m in Sources */,
+				5FEB8D872F18E00000019442 /* MSDKDnsResolver.m in Sources */,
+				5FEB8D882F18E00000019442 /* AttaReport.m in Sources */,
+				5FEB8D892F18E00000019442 /* MSDKDns.m in Sources */,
+				5FEB8D8A2F18E00000019442 /* LocalDnsResolver.m in Sources */,
 				5FEB8D4E2F18C92F00019442 /* MSDKDnsParamsManagerTests.m in Sources */,
 				5FEB8D512F18C92F00019442 /* MSDKDnsManagerTests.m in Sources */,
 				5FEB8D522F18C92F00019442 /* AttaReportTests.m in Sources */,
 				5FEB8D532F18C92F00019442 /* HttpsDnsResolverTests.m in Sources */,
 				5FEB8D502F18C92F00019442 /* MSDKDnsInfoToolTests.m in Sources */,
 				5FEB8D4F2F18C92F00019442 /* MSDKDnsTests.m in Sources */,
+				5FEB8D542F18C92F00019443 /* MSDKDnsLogTests.m in Sources */,
+				5FEB8D552F18C92F00019445 /* MSDKDnsDBTests.m in Sources */,
+				5FEB8D562F18C92F00019447 /* MSDKDnsReachabilityTests.m in Sources */,
+				5FEB8D572F18C92F00019449 /* MSDKDnsTCPSpeedTesterTests.m in Sources */,
+				5FEB8D582F18C92F0001944B /* LocalDnsResolverTests.m in Sources */,
+				5FEB8D5C2F18C92F00019450 /* MSDKDnsHttpMessageToolsTests.m in Sources */,
+				5FEB8D5D2F18C92F00019451 /* MSDKDnsNetworkManagerTests.m in Sources */,
+				5FEB8D5E2F18C92F00019452 /* LocalIPStackTests.mm in Sources */,
+				5FEB8D5F2F18C92F00019453 /* MSDKDnsMainTests.m in Sources */,
+				5FEB8D602F18C92F00019455 /* MSDKDnsServiceTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1438,16 +1509,16 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4PK94A7P3R;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/MSDKDns";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
@@ -1456,6 +1527,13 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-fprofile-instr-generate",
+					"-fcoverage-mapping",
+				);
+				OTHER_LDFLAGS = (
+					"-fprofile-instr-generate",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.eric.MSDKDnsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -1470,21 +1548,29 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4PK94A7P3R;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/MSDKDns";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = (
+					"-fprofile-instr-generate",
+					"-fcoverage-mapping",
+				);
+				OTHER_LDFLAGS = (
+					"-fprofile-instr-generate",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.eric.MSDKDnsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -1510,6 +1596,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/..";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = MSDKDns/Info.plist;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -1551,6 +1638,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/..";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = MSDKDns/Info.plist;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
