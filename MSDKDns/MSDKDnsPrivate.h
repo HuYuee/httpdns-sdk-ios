@@ -62,6 +62,22 @@
 #define kMSDKDns_DNS_A_IP @"dns_ips"              // 域名解析结果v4 IP，多个ip以“,”拼接
 #define kMSDKDns_DNS_4A_IP @"dns_4a_ips"          // 域名解析结果v6 IP，多个ip以“,”拼接
 
+// 场景位标记：bit0 表示上一次解析结果仅使用 LocalDNS
+#define MSDKDNS_SCENE_USE_LDNS (1 << 0)
+// 场景位标记：bit1 表示当前会话处于 HttpDNS 重试阶段
+#define MSDKDNS_SCENE_HTTPDNS_RETRY (1 << 1)
+
+// 高级功能标记：bit0 表示开启预解析能力（preResolvedDomains 列表非空）
+#define MSDKDNS_FEATURE_PRE_RESOLVE_DOMAINS (1 << 0)
+// 高级功能标记：bit1 表示仅使用 HttpDNS（HttpOnly）
+#define MSDKDNS_FEATURE_HTTP_ONLY (1 << 1)
+// 高级功能标记：bit2 表示开启持久化缓存能力
+#define MSDKDNS_FEATURE_PERSIST_CACHE_IP (1 << 2)
+// 高级功能标记：bit3 表示开启使用过期 IP 能力（乐观 DNS）
+#define MSDKDNS_FEATURE_EXPIRED_IP_ENABLED (1 << 3)
+// 高级功能标记：bit4 表示开启域名保活能力（keepAliveDomains 列表非空）
+#define MSDKDNS_FEATURE_KEEP_ALIVE_DOMAINS (1 << 4)
+
 /*** 域名解析错误码*/
 #define MSDKDns_Fail @"-1"    // 失败
 #define MSDKDns_Success @"0"  // 成功

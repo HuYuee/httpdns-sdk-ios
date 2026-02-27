@@ -53,11 +53,12 @@ static AttaReport * gSharedInstance = nil;
     #if IS_INTL
         self.attaid = ATTAID_INTL;
         self.token = ATTAToken_INTL;
+        self.reportUrl = ATTAReportUrl_INTL;
     #else
         self.attaid = ATTAID;
         self.token = ATTAToken;
-    #endif
         self.reportUrl = ATTAReportUrl;
+    #endif
         self.limit = ATTAReportDnsSpendLimit;
         self.interval = ATTAReportDnsSpendInterval;
         self.count = 0;
@@ -134,6 +135,7 @@ static AttaReport * gSharedInstance = nil;
     request.HTTPMethod = @"POST";
     NSString *postData = [self formatReportParams:params];
     request.HTTPBody = [postData dataUsingEncoding:NSUTF8StringEncoding];
+    MSDKDNSLOG(@"ATTAReport url: %@", _reportUrl);
     MSDKDNSLOG(@"ATTAReport data: %@", postData);
     NSURLSessionDataTask *dataTask = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (data && (error == nil)) {

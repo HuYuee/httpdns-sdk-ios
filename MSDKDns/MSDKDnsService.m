@@ -562,6 +562,7 @@
 - (void) retryHttpDns:(MSDKDnsResolver *)resolver {
     self.httpdnsFailCount += 1;
     self.isRetryRequest = @YES;
+    [[MSDKDnsParamsManager shareInstance] msdkDnsUpdateSceneIsRetry:YES];
     // NSLog(@"======%@======", self.origin);
     [self changeRetryEventName:self.origin];
     if (self.httpdnsFailCount < [[MSDKDnsParamsManager shareInstance] msdkDnsGetRetryTimesBeforeSwitchServer]) {
@@ -809,6 +810,9 @@
 
 - (void)callNotify {
     MSDKDNSLOG(@"callNotify! :%@", self.toCheckDomains);
+    if (self.isRetryRequest) {
+        [[MSDKDnsParamsManager shareInstance] msdkDnsUpdateSceneIsRetry:NO];
+    }
     self.isCallBack = YES;
     if (self.completionHandler) {
         self.completionHandler();

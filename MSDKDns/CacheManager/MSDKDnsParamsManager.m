@@ -38,6 +38,8 @@
 @property (assign, nonatomic, readwrite) BOOL persistCacheIPEnabled;
 @property (assign, nonatomic, readwrite) BOOL enableDetectHostServer;
 @property (assign, nonatomic, readwrite) NSInteger timeOffsetInSeconds;
+@property (assign, nonatomic, readwrite) uint32_t sceneFlags;
+@property (assign, nonatomic, readwrite) uint32_t featureFlags;
 
 @end
 
@@ -65,6 +67,8 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
         _expiredIPEnabled = NO;
         _persistCacheIPEnabled = NO;
         _enableDetectHostServer = NO;
+        _sceneFlags = 0;
+        _featureFlags = 0;
     }
     return self;
 }
@@ -102,6 +106,13 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
 - (void)msdkDnsSetHttpOnly:(BOOL)httpOnly {
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
         self.httpOnly = httpOnly;
+        uint32_t flags = self.featureFlags;
+        if (httpOnly) {
+            flags |= MSDKDNS_FEATURE_HTTP_ONLY;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_FEATURE_HTTP_ONLY);
+        }
+        self.featureFlags = flags;
     });
 }
 
@@ -135,7 +146,16 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
 
 - (void)msdkDnsSetPreResolvedDomains: (NSArray *)domains {
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
-        self.preResolvedDomains = [domains copy];
+        NSArray *copy = [domains copy];
+        self.preResolvedDomains = copy;
+        uint32_t flags = self.featureFlags;
+        BOOL enabled = (copy && [copy count] > 0);
+        if (enabled) {
+            flags |= MSDKDNS_FEATURE_PRE_RESOLVE_DOMAINS;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_FEATURE_PRE_RESOLVE_DOMAINS);
+        }
+        self.featureFlags = flags;
     });
 }
 
@@ -159,7 +179,16 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
 
 - (void)msdkDnsSetKeepAliveDomains: (NSArray *)domains {
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
-        self.keepAliveDomains = [domains copy];
+        NSArray *copy = [domains copy];
+        self.keepAliveDomains = copy;
+        uint32_t flags = self.featureFlags;
+        BOOL enabled = (copy && [copy count] > 0);
+        if (enabled) {
+            flags |= MSDKDNS_FEATURE_KEEP_ALIVE_DOMAINS;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_FEATURE_KEEP_ALIVE_DOMAINS);
+        }
+        self.featureFlags = flags;
     });
 }
 
@@ -178,18 +207,56 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
 - (void)msdkDnsSetExpiredIPEnabled: (BOOL)enable {
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
        self.expiredIPEnabled = enable;
+       uint32_t flags = self.featureFlags;
+       if (enable) {
+           flags |= MSDKDNS_FEATURE_EXPIRED_IP_ENABLED;
+       } else {
+           flags &= ~((uint32_t)MSDKDNS_FEATURE_EXPIRED_IP_ENABLED);
+       }
+       self.featureFlags = flags;
     });
 }
 
 - (void)msdkDnsSetPersistCacheIPEnabled: (BOOL)enable {
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
        self.persistCacheIPEnabled = enable;
+       uint32_t flags = self.featureFlags;
+       if (enable) {
+           flags |= MSDKDNS_FEATURE_PERSIST_CACHE_IP;
+       } else {
+           flags &= ~((uint32_t)MSDKDNS_FEATURE_PERSIST_CACHE_IP);
+       }
+       self.featureFlags = flags;
     });
 }
 
 - (void)msdkDnsSetOffsetWithBaseTime:(NSInteger)time {
     dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
         self.timeOffsetInSeconds = time;
+    });
+}
+
+- (void)msdkDnsUpdateSceneUseLdns:(BOOL)useLdns {
+    dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
+        uint32_t flags = self.sceneFlags;
+        if (useLdns) {
+            flags |= MSDKDNS_SCENE_USE_LDNS;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_SCENE_USE_LDNS);
+        }
+        self.sceneFlags = flags;
+    });
+}
+
+- (void)msdkDnsUpdateSceneIsRetry:(BOOL)isRetry {
+    dispatch_async([MSDKDnsInfoTool msdkdns_queue], ^{
+        uint32_t flags = self.sceneFlags;
+        if (isRetry) {
+            flags |= MSDKDNS_SCENE_HTTPDNS_RETRY;
+        } else {
+            flags &= ~((uint32_t)MSDKDNS_SCENE_HTTPDNS_RETRY);
+        }
+        self.sceneFlags = flags;
     });
 }
 
@@ -296,6 +363,14 @@ static MSDKDnsParamsManager * gSharedInstance = nil;
 
 - (NSInteger)msdkDnsGetOffsetWithBaseTime {
     return _timeOffsetInSeconds;
+}
+
+- (uint32_t)msdkDnsGetSceneFlags {
+    return _sceneFlags;
+}
+
+- (uint32_t)msdkDnsGetFeatureFlags {
+    return _featureFlags;
 }
  
 @end

@@ -478,6 +478,14 @@ char MSDKDnsHexCharToChar(char high, char low) {
     }
     
     NSString *urlStr = [NSString stringWithFormat:@"%@://%@/d?dn=%@&clientip=1&ttl=1&query=1&id=%d&sdk=%@", protocol, httpServer, domainEncrypStr, dnsId, sdkVersion];
+    // 如果存在场景位，则追加 scene 参数（以十六进制形式传递）
+    uint32_t sceneFlags = [[MSDKDnsParamsManager shareInstance] msdkDnsGetSceneFlags];
+    if (sceneFlags != 0) {
+        urlStr = [urlStr stringByAppendingFormat:@"&scene=%x", sceneFlags];
+    }
+    // 每次请求都携带高级功能标记参数 feature（以十六进制形式传递）
+    uint32_t featureFlags = [[MSDKDnsParamsManager shareInstance] msdkDnsGetFeatureFlags];
+    urlStr = [urlStr stringByAppendingFormat:@"&feature=%x", featureFlags];
     if (ipType == HttpDnsTypeIPv6) {
         urlStr = [urlStr stringByAppendingString:@"&type=aaaa"];
     }else if (ipType == HttpDnsTypeDual) {
