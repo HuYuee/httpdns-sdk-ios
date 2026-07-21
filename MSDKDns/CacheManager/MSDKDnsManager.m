@@ -1413,10 +1413,10 @@ static MSDKDnsManager * gSharedInstance = nil;
     NSMutableArray *servers = [[NSMutableArray alloc] init];
 #ifdef httpdnsIps_h
     #if IS_INTL
-        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] != HttpDnsEncryptTypeHTTPS) {
-            [servers addObjectsFromArray: MSDKDnsHttpServerIps_INTL];
+        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
+            [servers addObjectsFromArray: MSDKDnsHttpsServerIps_INTL];
         } else {
-            // 国际站SDK暂不支持HTTPS解析
+            [servers addObjectsFromArray: MSDKDnsHttpServerIps_INTL];
         }
     #else
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
@@ -1434,10 +1434,10 @@ static MSDKDnsManager * gSharedInstance = nil;
     NSMutableArray *servers = [[NSMutableArray alloc] init];
 #ifdef httpdnsIps_h
     #if IS_INTL
-        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] != HttpDnsEncryptTypeHTTPS) {
-            [servers addObjectsFromArray: MSDKDnsFetchConfigHttpList_INTL];
+        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
+            [servers addObjectsFromArray: MSDKDnsFetchConfigHttpsList_INTL];
         } else {
-            // 国际站SDK暂不支持HTTPS解析
+            [servers addObjectsFromArray: MSDKDnsFetchConfigHttpList_INTL];
         }
     #else
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
