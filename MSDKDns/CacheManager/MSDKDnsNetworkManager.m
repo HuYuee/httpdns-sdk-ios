@@ -95,16 +95,16 @@ static MSDKDnsNetworkManager *gManager = nil;
              {
                  self.hasEnteredBackground = YES;
                  [[MSDKDnsManager shareInstance] enterBackgroundReportCacheData];
-                BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
-                BOOL persistCacheIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetPersistCacheIPEnabled];
-                if (!expiredIPEnabled && !persistCacheIPEnabled) {
-                    MSDKDNSLOG(@"Application did enter background,clear MSDKDns cache");
-                    //进入后台时清除缓存，排除开启了持久化缓存或者开启了使用过期缓存IP的情况
-                    [[MSDKDnsManager shareInstance] clearAllCache];
-                }
-                //进入后台时，暂停网络监测
-                [self.reachability stopNotifier];
-            }];
+                 BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
+                 BOOL persistCacheIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetPersistCacheIPEnabled];
+                 if (!expiredIPEnabled && !persistCacheIPEnabled) {
+                     MSDKDNSLOG(@"Application did enter background,clear MSDKDns cache");
+                     //进入后台时清除缓存，排除开启了持久化缓存或者开启了使用过期缓存IP的情况
+                     [[MSDKDnsManager shareInstance] clearAllCache];
+                 }
+                 //进入后台时，暂停网络监测
+                 [self.reachability stopNotifier];
+             }];
             
             [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationWillEnterForegroundNotification
                                                             object:nil
@@ -121,7 +121,7 @@ static MSDKDnsNetworkManager *gManager = nil;
                  [self.reachability startNotifier];
                  //对保活域名发送解析请求
                  [self getHostsByKeepAliveDomains];
-                 
+
                  BOOL enableDetectHostServer = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEnableDetectHostServer];
                  if (enableDetectHostServer) {
                      // 探测dnsIp
