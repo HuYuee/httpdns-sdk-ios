@@ -10,7 +10,7 @@
 @interface HttpsDnsResolver : MSDKDnsResolver
 
 @property (nonatomic, assign) NSInteger statusCode;
-@property (strong, nonatomic) NSString * errorCode;
+@property (strong, atomic) NSString * errorCode;
 @property (strong, nonatomic) NSString * serviceIp;
 @property (strong, nonatomic) NSString * expiredTime;
 

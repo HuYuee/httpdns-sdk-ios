@@ -19,6 +19,7 @@
 
 @property (strong, nonatomic) MSDKDnsReachability *reachability;
 @property (strong, nonatomic, readwrite) NSString *networkType;
+@property (nonatomic, assign) BOOL hasEnteredBackground;
 
 @end
 
@@ -92,34 +93,41 @@ static MSDKDnsNetworkManager *gManager = nil;
                                                              queue:nil
                                                         usingBlock:^(NSNotification *note)
              {
-                [[MSDKDnsManager shareInstance] enterBackgroundReportCacheData];
-                BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
-                BOOL persistCacheIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetPersistCacheIPEnabled];
-                if (!expiredIPEnabled && !persistCacheIPEnabled) {
-                    MSDKDNSLOG(@"Application did enter background,clear MSDKDns cache");
-                    //进入后台时清除缓存，排除开启了持久化缓存或者开启了使用过期缓存IP的情况
-                    [[MSDKDnsManager shareInstance] clearAllCache];
-                }
-                //进入后台时，暂停网络监测
-                [self.reachability stopNotifier];
-            }];
+                 self.hasEnteredBackground = YES;
+                 [[MSDKDnsManager shareInstance] enterBackgroundReportCacheData];
+                 BOOL expiredIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetExpiredIPEnabled];
+                 BOOL persistCacheIPEnabled = [[MSDKDnsParamsManager shareInstance] msdkDnsGetPersistCacheIPEnabled];
+                 if (!expiredIPEnabled && !persistCacheIPEnabled) {
+                     MSDKDNSLOG(@"Application did enter background,clear MSDKDns cache");
+                     //进入后台时清除缓存，排除开启了持久化缓存或者开启了使用过期缓存IP的情况
+                     [[MSDKDnsManager shareInstance] clearAllCache];
+                 }
+                 //进入后台时，暂停网络监测
+                 [self.reachability stopNotifier];
+             }];
             
             [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationWillEnterForegroundNotification
                                                             object:nil
                                                              queue:nil
                                                         usingBlock:^(NSNotification *note)
              {
-                //进入前台时，开启网络监测
-                [self.reachability startNotifier];
-                //对保活域名发送解析请求
-                [self getHostsByKeepAliveDomains];
-                
-                BOOL enableDetectHostServer = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEnableDetectHostServer];
-                if (enableDetectHostServer) {
-                    // 探测dnsIp
-                    [[MSDKDnsManager shareInstance] detectHttpDnsServers];
-                }
-            }];
+                 // UIScene 框架下冷启动也会触发此通知，需区分冷启动和从后台回前台
+                 if (!self.hasEnteredBackground) {
+                     // 冷启动场景，startNotifier 已在 init 中调用，跳过
+                     return;
+                 }
+                 self.hasEnteredBackground = NO;
+                 //进入前台时，开启网络监测
+                 [self.reachability startNotifier];
+                 //对保活域名发送解析请求
+                 [self getHostsByKeepAliveDomains];
+
+                 BOOL enableDetectHostServer = [[MSDKDnsParamsManager shareInstance] msdkDnsGetEnableDetectHostServer];
+                 if (enableDetectHostServer) {
+                     // 探测dnsIp
+                     [[MSDKDnsManager shareInstance] detectHttpDnsServers];
+                 }
+             }];
             
             _reachability = [MSDKDnsReachability reachabilityForInternetConnection];
             [_reachability startNotifier];
