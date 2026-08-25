@@ -67,6 +67,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 @implementation MSDKDnsReachability
 {
     SCNetworkReachabilityRef _reachabilityRef;
+    BOOL _isNotifying;
 }
 
 + (instancetype)reachabilityWithHostName:(NSString *)hostName
@@ -129,6 +130,9 @@ static void reachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 - (BOOL)startNotifier
 {
+    if (_isNotifying) {
+        return YES;
+    }
     BOOL returnValue = NO;
     SCNetworkReachabilityContext context = {0, (__bridge void *)(self), NULL, NULL, NULL};
     
@@ -136,6 +140,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     {
         if (SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode))
         {
+            _isNotifying = YES;
             returnValue = YES;
         }
     }
@@ -146,9 +151,10 @@ static void reachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 - (void)stopNotifier
 {
-    if (_reachabilityRef != NULL)
+    if (_reachabilityRef != NULL && _isNotifying)
     {
         SCNetworkReachabilityUnscheduleFromRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        _isNotifying = NO;
     }
 }
 

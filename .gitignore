@@ -29,3 +29,8 @@ Pods/
 # Header
 MSDKDns/httpdnsIps.h
 MSDKDns.xcodeproj/project.xcworkspace
+
+# 测试文件夹
+TestResults.xcresult/
+*.docx
+tools
