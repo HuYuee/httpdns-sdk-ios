@@ -1413,10 +1413,10 @@ static MSDKDnsManager * gSharedInstance = nil;
     NSMutableArray *servers = [[NSMutableArray alloc] init];
 #ifdef httpdnsIps_h
     #if IS_INTL
-        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
-            [servers addObjectsFromArray: MSDKDnsHttpsServerIps_INTL];
-        } else {
+        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] != HttpDnsEncryptTypeHTTPS) {
             [servers addObjectsFromArray: MSDKDnsHttpServerIps_INTL];
+        } else {
+            [servers addObjectsFromArray: MSDKDnsHttpsServerIps_INTL];
         }
     #else
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
@@ -1434,10 +1434,10 @@ static MSDKDnsManager * gSharedInstance = nil;
     NSMutableArray *servers = [[NSMutableArray alloc] init];
 #ifdef httpdnsIps_h
     #if IS_INTL
-        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
-            [servers addObjectsFromArray: MSDKDnsFetchConfigHttpsList_INTL];
-        } else {
+        if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] != HttpDnsEncryptTypeHTTPS) {
             [servers addObjectsFromArray: MSDKDnsFetchConfigHttpList_INTL];
+        } else {
+            [servers addObjectsFromArray: MSDKDnsFetchConfigHttpsList_INTL];
         }
     #else
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
