@@ -44,15 +44,6 @@ static BOOL isInitialized = NO;
 
 - (BOOL) initConfig:(DnsConfig *)config {
     isInitialized = YES;
-#if IS_INTL
-    if (config->encryptType == HttpDnsEncryptTypeHTTPS) {
-        //国际站SDK不能进行HTTPS解析，直接报错提示用户
-        @throw [NSException exceptionWithName:@"MSDKDns wrong use of encryptType"
-                                           reason:@"HttpDnsEncryptTypeHTTPS cannot be used because httpdns-sdk-intl version still doesn't support, it is recommended to use HttpDnsEncryptTypeDES or HttpDnsEncryptTypeAES"
-                                         userInfo:nil];
-        return NO;
-    }
-    #endif
     [[MSDKDnsLog sharedInstance] setEnableLog:config->debug];
     [[MSDKDnsParamsManager shareInstance] msdkDnsSetMAppId:config->appId timeOut:config->timeout encryptType:config->encryptType];
     [[MSDKDnsParamsManager shareInstance] msdkDnsSetMDnsId:config->dnsId dnsKey:config->dnsKey token:config->token];

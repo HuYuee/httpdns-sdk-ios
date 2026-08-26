@@ -1416,7 +1416,7 @@ static MSDKDnsManager * gSharedInstance = nil;
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] != HttpDnsEncryptTypeHTTPS) {
             [servers addObjectsFromArray: MSDKDnsHttpServerIps_INTL];
         } else {
-            // 国际站SDK暂不支持HTTPS解析
+            [servers addObjectsFromArray: MSDKDnsHttpsServerIps_INTL];
         }
     #else
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
@@ -1437,7 +1437,7 @@ static MSDKDnsManager * gSharedInstance = nil;
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] != HttpDnsEncryptTypeHTTPS) {
             [servers addObjectsFromArray: MSDKDnsFetchConfigHttpList_INTL];
         } else {
-            // 国际站SDK暂不支持HTTPS解析
+            [servers addObjectsFromArray: MSDKDnsFetchConfigHttpsList_INTL];
         }
     #else
         if ([[MSDKDnsParamsManager shareInstance] msdkDnsGetEncryptType] == HttpDnsEncryptTypeHTTPS) {
